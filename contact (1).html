@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us — Summit Sips · Craft Coffee & Tea</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --navy:     #0d2b4e;
+      --cobalt:   #1a4a8a;
+      --sky:      #3a7bd5;
+      --frost:    #e8f1fc;
+      --white:    #ffffff;
+      --mist:     #f4f8ff;
+      --text:     #1c2b3a;
+      --sub:      #5a7290;
+      --accent:   #c8a96e;
+      --line:     rgba(13,43,78,.10);
+      --success:  #2d9e6b;
+      --error:    #d94f4f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+
+    h1,h2,h3,h4,h5 { font-family: 'Cormorant Garamond', serif; }
+
+    /* ─── NAVBAR ─────────────────────────────────────────── */
+    .summit-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summit-nav .navbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: .85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .summit-nav .brand-logo img {
+      height: 46px; width: auto; object-fit: contain;
+    }
+
+    .logo-fallback {
+      height: 46px; width: 46px;
+      background: var(--navy); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.3rem;
+    }
+
+    .summit-nav .nav-links {
+      display: flex; gap: 0; list-style: none;
+      margin: 0; padding: 0; flex: 1;
+    }
+
+    .summit-nav .nav-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--sub); text-decoration: none;
+      padding: .4rem 1.1rem; border-radius: 20px;
+      transition: all .22s;
+    }
+
+    .summit-nav .nav-links a:hover,
+    .summit-nav .nav-links a.active {
+      color: var(--navy); background: var(--frost);
+    }
+
+    .sip-btn {
+      position: relative;
+      background: var(--navy); color: var(--white) !important;
+      border: none; padding: .58rem 1.3rem .58rem 1.1rem !important;
+      border-radius: 30px !important; font-size: .78rem !important;
+      letter-spacing: .07em !important; font-weight: 600 !important;
+      display: flex !important; align-items: center; gap: .4rem;
+      white-space: nowrap; transition: background .22s, transform .18s !important;
+    }
+    .sip-btn:hover { background: var(--cobalt) !important; transform: translateY(-1px); }
+
+    .cart-badge {
+      position: absolute; top: -6px; right: -6px;
+      background: var(--accent); color: var(--navy);
+      font-size: .6rem; font-weight: 700;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(.5); transition: all .2s;
+    }
+    .cart-badge.visible { opacity: 1; transform: scale(1); }
+
+    .nav-toggle {
+      display: none; background: none; border: none;
+      font-size: 1.4rem; color: var(--navy); cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-toggle { display: flex; align-items: center; }
+      .nav-links   { display: none !important; }
+      .nav-links.open { display: flex !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--white); padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); gap: .3rem; }
+    }
+
+    /* ─── CART PANEL ─────────────────────────────────────── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(13,43,78,.35);
+      z-index: 1100; opacity: 0; pointer-events: none; transition: opacity .28s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+
+    .cart-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(380px, 100vw); background: var(--white); z-index: 1200;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      box-shadow: -8px 0 40px rgba(13,43,78,.12);
+    }
+    .cart-panel.open { transform: translateX(0); }
+
+    .cart-header {
+      padding: 1.4rem 1.5rem; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-header h5 { font-size: 1.3rem; font-weight: 600; color: var(--navy); margin: 0; }
+    .cart-close {
+      background: none; border: none; font-size: 1.2rem; color: var(--sub); cursor: pointer;
+      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background .18s;
+    }
+    .cart-close:hover { background: var(--frost); }
+    .cart-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.5rem; }
+    .cart-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%;
+      color: var(--sub); gap: .6rem; text-align: center;
+    }
+    .cart-empty i { font-size: 2.5rem; color: var(--frost); }
+    .cart-item {
+      display: flex; gap: 1rem; padding: .9rem 0;
+      border-bottom: 1px solid var(--line); align-items: center;
+    }
+    .cart-item-icon {
+      width: 46px; height: 46px; background: var(--frost);
+      border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; color: var(--cobalt); font-size: 1.2rem; flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-info strong { font-size: .88rem; color: var(--navy); display: block; }
+    .cart-item-info span  { font-size: .78rem; color: var(--sub); }
+    .cart-item-price { font-size: .9rem; font-weight: 600; color: var(--cobalt); }
+    .cart-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--line); }
+    .cart-total {
+      display: flex; justify-content: space-between;
+      font-weight: 600; font-size: .95rem; color: var(--navy); margin-bottom: 1rem;
+    }
+    .btn-checkout {
+      display: block; width: 100%; background: var(--navy); color: var(--white);
+      border: none; padding: .85rem; border-radius: 30px;
+      font-size: .85rem; font-weight: 600; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer; transition: background .2s;
+    }
+    .btn-checkout:hover { background: var(--cobalt); }
+
+    /* ─── PAGE HERO ──────────────────────────────────────── */
+    .page-hero {
+      min-height: 52vh;
+      background: linear-gradient(155deg, #0d2b4e 0%, #1a4a8a 55%, #3a7bd5 100%);
+      display: flex; align-items: flex-end;
+      position: relative; overflow: hidden;
+      padding-top: 80px; padding-bottom: 4.5rem;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 65% 55% at 85% 25%, rgba(58,123,213,.2) 0%, transparent 65%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-ring {
+      position: absolute; right: -8vw; top: 50%; transform: translateY(-50%);
+      width: 50vw; height: 50vw; max-width: 600px; max-height: 600px;
+      border-radius: 50%; border: 1px solid rgba(255,255,255,.07); pointer-events: none;
+    }
+    .hero-ring::before {
+      content: ''; position: absolute; inset: 14%;
+      border-radius: 50%; border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .page-hero-content { position: relative; z-index: 2; }
+
+    .breadcrumb-trail {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .76rem; color: rgba(255,255,255,.4);
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1.4rem;
+    }
+    .breadcrumb-trail a { color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .breadcrumb-trail a:hover { color: var(--accent); }
+    .breadcrumb-trail .bc-sep { color: rgba(255,255,255,.2); }
+    .breadcrumb-trail .bc-cur { color: var(--accent); }
+
+    .page-hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .72rem; font-weight: 500; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent);
+      background: rgba(200,169,110,.12); border: 1px solid rgba(200,169,110,.25);
+      padding: .38rem .9rem; border-radius: 20px; margin-bottom: 1.4rem;
+    }
+
+    .page-hero h1 {
+      font-size: clamp(2.6rem, 5.5vw, 4.2rem); font-weight: 300;
+      color: var(--white); line-height: 1.1; margin-bottom: 1rem;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--accent); }
+
+    .page-hero-desc {
+      font-size: 1rem; color: rgba(255,255,255,.6);
+      max-width: 500px; line-height: 1.75;
+    }
+
+    /* ─── SECTION SHARED ─────────────────────────────────── */
+    .section-eyebrow {
+      font-size: .72rem; font-weight: 500; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--sky);
+      margin-bottom: .7rem; display: block;
+    }
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 300;
+      line-height: 1.18; color: var(--navy);
+    }
+    .section-title em { font-style: italic; color: var(--cobalt); }
+
+    /* ─── CONTACT BODY ───────────────────────────────────── */
+    .contact-body { padding: 5.5rem 0 6rem; background: var(--white); }
+
+    .contact-layout {
+      display: grid; grid-template-columns: 1fr 1.45fr; gap: 4rem; align-items: start;
+    }
+    @media(max-width:900px) { .contact-layout { grid-template-columns: 1fr; gap: 3rem; } }
+
+    /* ─── LEFT: INFO PANEL ───────────────────────────────── */
+    .contact-info-panel {}
+
+    .contact-info-panel p {
+      font-size: .95rem; color: var(--sub); line-height: 1.85; margin-bottom: 2rem;
+    }
+
+    .contact-detail-list {
+      list-style: none; padding: 0; margin: 0 0 2.2rem;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .contact-detail-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      padding: 1rem 1.2rem;
+      background: var(--mist);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      transition: all .22s;
+    }
+    .contact-detail-item:hover {
+      background: var(--frost); border-color: rgba(58,123,213,.2);
+      transform: translateX(4px);
+    }
+    .contact-detail-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--cobalt), var(--sky));
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      color: var(--white); font-size: 1rem;
+      box-shadow: 0 4px 14px rgba(26,74,138,.22);
+    }
+    .contact-detail-label {
+      font-size: .7rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--sub); margin-bottom: .2rem;
+    }
+    .contact-detail-value {
+      font-size: .9rem; color: var(--navy); font-weight: 500; line-height: 1.5;
+    }
+
+    .hours-card {
+      background: var(--navy);
+      border-radius: 20px; padding: 1.6rem 1.8rem;
+      margin-top: .5rem;
+    }
+    .hours-card-title {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(255,255,255,.35); margin-bottom: 1rem;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .hours-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .5rem 0; border-bottom: 1px solid rgba(255,255,255,.07);
+      font-size: .86rem;
+    }
+    .hours-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .hours-day { color: rgba(255,255,255,.5); }
+    .hours-time { color: var(--white); font-weight: 500; }
+    .hours-badge {
+      font-size: .62rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; background: rgba(200,169,110,.2);
+      color: var(--accent); padding: .18rem .5rem; border-radius: 6px;
+    }
+
+    /* ─── RIGHT: FORM ────────────────────────────────────── */
+    .contact-form-wrap {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 2.8rem 2.6rem;
+      box-shadow: 0 12px 50px rgba(13,43,78,.07);
+    }
+    @media(max-width:576px) { .contact-form-wrap { padding: 2rem 1.5rem; } }
+
+    .form-header { margin-bottom: 2rem; }
+    .form-header h3 {
+      font-size: 1.8rem; font-weight: 600; color: var(--navy); margin-bottom: .4rem;
+    }
+    .form-header p { font-size: .88rem; color: var(--sub); margin: 0; }
+
+    .form-row-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;
+    }
+    @media(max-width:576px) { .form-row-grid { grid-template-columns: 1fr; } }
+
+    .form-group { margin-bottom: 1.2rem; }
+
+    .form-group label {
+      display: block; font-size: .77rem; font-weight: 500;
+      letter-spacing: .07em; text-transform: uppercase;
+      color: var(--navy); margin-bottom: .45rem;
+    }
+    .form-group label span.req { color: var(--accent); margin-left: .2rem; }
+
+    .form-control-custom {
+      width: 100%;
+      background: var(--mist);
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: .78rem 1.1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .9rem; color: var(--text);
+      outline: none;
+      transition: border-color .22s, box-shadow .22s, background .22s;
+      appearance: none;
+    }
+    .form-control-custom::placeholder { color: rgba(90,114,144,.5); }
+    .form-control-custom:focus {
+      border-color: var(--sky);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(58,123,213,.12);
+    }
+    .form-control-custom.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(217,79,79,.1);
+    }
+    .form-control-custom.valid {
+      border-color: var(--success);
+      box-shadow: 0 0 0 3px rgba(45,158,107,.1);
+    }
+
+    textarea.form-control-custom {
+      resize: vertical; min-height: 130px;
+    }
+
+    select.form-control-custom {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a7290' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      padding-right: 2.5rem;
+      cursor: pointer;
+    }
+
+    .field-error {
+      font-size: .75rem; color: var(--error);
+      margin-top: .35rem; display: flex; align-items: center; gap: .3rem;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity .2s, transform .2s;
+    }
+    .field-error.show { opacity: 1; transform: none; }
+
+    .form-divider {
+      border: none; border-top: 1px solid var(--line);
+      margin: 1.6rem 0;
+    }
+
+    /* topic tags */
+    .topic-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .topic-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .78rem; font-weight: 500;
+      padding: .38rem .85rem; border-radius: 20px;
+      border: 1.5px solid var(--line);
+      background: var(--mist); color: var(--sub);
+      cursor: pointer; transition: all .2s; user-select: none;
+    }
+    .topic-tag:hover { border-color: rgba(58,123,213,.3); color: var(--cobalt); background: var(--frost); }
+    .topic-tag.selected { background: var(--cobalt); color: var(--white); border-color: var(--cobalt); }
+    .topic-tag i { font-size: .8rem; }
+
+    /* submit btn */
+    .btn-submit {
+      width: 100%; background: var(--navy); color: var(--white);
+      border: none; padding: .95rem 2rem; border-radius: 30px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .88rem; font-weight: 600; letter-spacing: .07em;
+      text-transform: uppercase; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+      transition: all .25s; margin-top: 1.6rem;
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+      transform: translateX(-100%);
+      transition: transform .5s;
+    }
+    .btn-submit:hover { background: var(--cobalt); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(13,43,78,.2); }
+    .btn-submit:hover::before { transform: translateX(100%); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: .65; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .btn-submit .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .privacy-note {
+      font-size: .76rem; color: var(--sub); text-align: center;
+      margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: .4rem;
+    }
+    .privacy-note i { color: var(--sky); }
+
+    /* ─── THANK YOU MODAL ────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(13,43,78,.55);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: var(--white);
+      border-radius: 28px;
+      padding: 3rem 2.8rem;
+      max-width: 480px; width: 100%;
+      text-align: center;
+      box-shadow: 0 30px 80px rgba(13,43,78,.25);
+      transform: translateY(30px) scale(.96);
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .35s;
+      opacity: 0;
+      position: relative;
+    }
+    .modal-overlay.open .modal-box {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+    }
+
+    .modal-close-btn {
+      position: absolute; top: 1.2rem; right: 1.2rem;
+      background: var(--mist); border: 1px solid var(--line);
+      border-radius: 50%; width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--sub); font-size: .9rem; cursor: pointer;
+      transition: all .18s;
+    }
+    .modal-close-btn:hover { background: var(--frost); color: var(--navy); }
+
+    .modal-icon-wrap {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #1e6e4b, var(--success));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.6rem;
+      box-shadow: 0 8px 24px rgba(45,158,107,.3);
+      animation: popIn .5s cubic-bezier(.34,1.56,.64,1) .15s both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .modal-icon-wrap i { font-size: 2rem; color: var(--white); }
+
+    .modal-box h3 {
+      font-size: 2rem; font-weight: 600; color: var(--navy);
+      margin-bottom: .6rem;
+    }
+    .modal-box h3 em { font-style: italic; color: var(--cobalt); }
+
+    .modal-box p {
+      font-size: .92rem; color: var(--sub); line-height: 1.8;
+      margin-bottom: 1.6rem;
+    }
+
+    .modal-meta {
+      background: var(--mist); border: 1px solid var(--line);
+      border-radius: 14px; padding: 1rem 1.3rem;
+      display: flex; flex-direction: column; gap: .5rem;
+      text-align: left; margin-bottom: 1.8rem;
+    }
+    .modal-meta-row {
+      display: flex; align-items: center; gap: .6rem;
+      font-size: .83rem; color: var(--sub);
+    }
+    .modal-meta-row i { color: var(--sky); font-size: .85rem; width: 16px; }
+    .modal-meta-row strong { color: var(--navy); }
+
+    .modal-btn-row { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn-modal-primary {
+      background: var(--navy); color: var(--white);
+      border: none; padding: .72rem 1.8rem;
+      border-radius: 30px; font-weight: 600;
+      font-size: .84rem; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-modal-primary:hover { background: var(--cobalt); transform: translateY(-1px); color: var(--white); }
+
+    .btn-modal-ghost {
+      background: transparent; color: var(--navy);
+      border: 1.5px solid var(--line); padding: .72rem 1.8rem;
+      border-radius: 30px; font-weight: 500;
+      font-size: .84rem; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-modal-ghost:hover { background: var(--frost); border-color: rgba(58,123,213,.3); color: var(--navy); }
+
+    /* confetti dots */
+    .confetti-dot {
+      position: absolute; border-radius: 50%;
+      animation: confettiFall 1.2s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(80px) rotate(360deg); }
+    }
+
+    /* ─── MAP / FIND US SECTION ──────────────────────────── */
+    .find-us { background: var(--mist); padding: 5.5rem 0; }
+
+    .find-us-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 3.5rem; align-items: center;
+    }
+    @media(max-width:900px) { .find-us-grid { grid-template-columns: 1fr; } }
+
+    .map-placeholder {
+      background: var(--navy);
+      border-radius: 24px; overflow: hidden;
+      height: 340px; position: relative;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 16px 48px rgba(13,43,78,.16);
+    }
+
+    /* animated map grid */
+    .map-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .map-pin {
+      position: relative; z-index: 2; text-align: center;
+    }
+    .map-pin-dot {
+      width: 18px; height: 18px;
+      background: var(--accent); border-radius: 50%;
+      margin: 0 auto .6rem;
+      box-shadow: 0 0 0 6px rgba(200,169,110,.25);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 6px rgba(200,169,110,.25); }
+      50%      { box-shadow: 0 0 0 14px rgba(200,169,110,.1); }
+    }
+    .map-pin-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; color: var(--white); font-weight: 600;
+    }
+    .map-pin-sub { font-size: .76rem; color: rgba(255,255,255,.45); margin-top: .2rem; }
+
+    /* directions badge */
+    .directions-badge {
+      position: absolute; bottom: 1.2rem; right: 1.2rem;
+      background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.15); border-radius: 12px;
+      padding: .6rem 1rem; font-size: .76rem; color: rgba(255,255,255,.7);
+      display: flex; align-items: center; gap: .4rem; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+    }
+    .directions-badge:hover { background: rgba(255,255,255,.18); color: #fff; }
+
+    .find-us-text {}
+    .find-us-text p {
+      font-size: .95rem; color: var(--sub); line-height: 1.85; margin-bottom: 1.5rem;
+    }
+
+    .nearby-tag-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .nearby-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .78rem; color: var(--navy);
+      background: var(--white); border: 1px solid var(--line);
+      border-radius: 10px; padding: .35rem .75rem;
+      box-shadow: 0 2px 8px rgba(13,43,78,.04);
+    }
+    .nearby-tag i { color: var(--sky); }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    .site-footer {
+      background: #08192e; color: rgba(255,255,255,.5); padding: 4rem 0 2rem;
+    }
+    .footer-brand { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
+    .footer-brand img { height: 40px; }
+    .footer-logo-fallback {
+      height: 40px; width: 40px; background: var(--cobalt); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.1rem;
+    }
+    .footer-tagline { font-size: .86rem; line-height: 1.7; max-width: 260px; }
+    .footer-socials { display: flex; gap: .6rem; margin-top: 1.2rem; }
+    .footer-social-btn {
+      width: 36px; height: 36px; background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.4); font-size: .9rem;
+      transition: all .2s; text-decoration: none;
+    }
+    .footer-social-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.8); }
+    .footer-col-title {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 600; color: rgba(255,255,255,.25); margin-bottom: 1.1rem;
+    }
+    .footer-links { list-style: none; padding: 0; margin: 0; }
+    .footer-links li + li { margin-top: .55rem; }
+    .footer-links a {
+      font-size: .86rem; color: rgba(255,255,255,.45);
+      text-decoration: none; transition: color .18s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,.8); }
+    .footer-contact-item {
+      display: flex; align-items: flex-start; gap: .7rem;
+      font-size: .86rem; margin-bottom: .75rem;
+    }
+    .footer-contact-item i { color: var(--accent); font-size: .9rem; margin-top: .15rem; }
+    .footer-divider {
+      border-top: 1px solid rgba(255,255,255,.07);
+      margin-top: 3rem; padding-top: 1.5rem;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+      font-size: .78rem; color: rgba(255,255,255,.25);
+    }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .32s; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ════════════════════════════ -->
+<nav class="summit-nav">
+  <div class="navbar-inner">
+    <a href="index.html" class="brand-logo">
+      <img src="Summit_Sips.png" alt="Summit Sips"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="logo-fallback" style="display:none;"><i class="bi bi-cup-hot-fill"></i></div>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="contact.html" class="active">Contact</a></li>
+    </ul>
+
+    <button class="sip-btn" id="sipBtn" onclick="toggleCart()">
+      <i class="bi bi-cup-hot"></i>
+      Sip Now
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ CART PANEL ════════════════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h5><i class="bi bi-bag me-2" style="font-size:1rem;color:var(--cobalt)"></i>Your Order</h5>
+    <button class="cart-close" onclick="toggleCart()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty" id="cartEmpty">
+      <i class="bi bi-cup"></i>
+      <strong style="color:var(--sub);font-size:.92rem;">No items yet</strong>
+      <span style="font-size:.8rem;">Explore our menu and add your favorites.</span>
+    </div>
+    <div id="cartItems"></div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total</span><span id="cartTotal">₱0.00</span></div>
+    <button class="btn-checkout"><i class="bi bi-bag-check me-2"></i>Place Order</button>
+  </div>
+</div>
+
+<!-- ═══════════════════ PAGE HERO ═════════════════════════ -->
+<section class="page-hero">
+  <div class="hero-ring"></div>
+  <div class="container">
+    <div class="page-hero-content" style="max-width:600px;">
+      <div class="breadcrumb-trail">
+        <a href="index.html">Home</a>
+        <span class="bc-sep"><i class="bi bi-chevron-right" style="font-size:.65rem;"></i></span>
+        <span class="bc-cur">Contact</span>
+      </div>
+      <span class="page-hero-eyebrow">
+        <i class="bi bi-chat-heart-fill"></i>
+        We'd Love to Hear From You
+      </span>
+      <h1>
+        Let's start a<br>
+        <em>conversation</em><br>
+        over coffee.
+      </h1>
+      <p class="page-hero-desc">
+        Whether you have a question about our sourcing, want to explore wholesale,
+        or simply want to share how our brew made your morning — we're always listening.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CONTACT BODY ══════════════════════ -->
+<section class="contact-body">
+  <div class="container">
+    <div class="contact-layout">
+
+      <!-- ── LEFT: Info ── -->
+      <div class="reveal">
+        <span class="section-eyebrow"><i class="bi bi-pin-map me-1"></i> Reach Us</span>
+        <h2 class="section-title mb-3">Come find <em>us.</em></h2>
+        <p>
+          We're a small team based in Baguio City, deeply rooted in the Benguet highlands.
+          Drop by the café, send us a message, or give us a ring — we respond to every inquiry within 24 hours.
+        </p>
+
+        <ul class="contact-detail-list">
+          <li class="contact-detail-item">
+            <div class="contact-detail-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <div>
+              <div class="contact-detail-label">Irisan Eco Park</div>
+              <div class="contact-detail-value">Monday to Sunday<br>10:00 AM – 5:00 PM</div>
+            </div>
+          </li>
+          <li class="contact-detail-item">
+            <div class="contact-detail-icon"><i class="bi bi-geo-alt-fill"></i></div>
+            <div>
+              <div class="contact-detail-label">Baguio Night Market</div>
+              <div class="contact-detail-value">Monday to Friday<br>9:00 PM – 1:00 AM</div>
+            </div>
+          </li>
+          <li class="contact-detail-item">
+            <div class="contact-detail-icon"><i class="bi bi-tiktok"></i></div>
+            <div>
+              <div class="contact-detail-label">TikTok</div>
+              <div class="contact-detail-value"><a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" style="color:var(--navy);text-decoration:none;">@summit.sips0</a></div>
+            </div>
+          </li>
+          <li class="contact-detail-item">
+            <div class="contact-detail-icon"><i class="bi bi-facebook"></i></div>
+            <div>
+              <div class="contact-detail-label">Facebook</div>
+              <div class="contact-detail-value"><a href="https://www.facebook.com/share/1Aw8jjiLkH/?mibextid=wwXIfr" target="_blank" rel="noopener" style="color:var(--navy);text-decoration:none;">Summit Sips</a></div>
+            </div>
+          </li>
+          <li class="contact-detail-item">
+            <div class="contact-detail-icon"><i class="bi bi-instagram"></i></div>
+            <div>
+              <div class="contact-detail-label">Instagram</div>
+              <div class="contact-detail-value"><a href="https://www.instagram.com/summitsips_/" target="_blank" rel="noopener" style="color:var(--navy);text-decoration:none;">@summitsips_</a></div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="hours-card">
+          <div class="hours-card-title">
+            <i class="bi bi-clock" style="color:var(--accent);"></i>
+            Operating Hours
+          </div>
+          <div class="hours-row">
+            <span class="hours-day">Irisan Eco Park (Mon–Sun)</span>
+            <span class="hours-time">10:00 AM – 5:00 PM</span>
+          </div>
+          <div class="hours-row">
+            <span class="hours-day">Baguio Night Market (Mon–Fri)</span>
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <span class="hours-time">9:00 PM – 1:00 AM</span>
+              <span class="hours-badge">Open</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── RIGHT: Form ── -->
+      <div class="contact-form-wrap reveal reveal-delay-2">
+
+        <div class="form-header">
+          <h3>Send an <em style="font-style:italic;color:var(--cobalt);">Inquiry</em></h3>
+          <p>Fill in the form below and we'll get back to you within 24 hours.</p>
+        </div>
+
+        <form id="contactForm" novalidate>
+
+          <!-- Name + Email -->
+          <div class="form-row-grid">
+            <div class="form-group">
+              <label for="fname">First Name <span class="req">*</span></label>
+              <input type="text" id="fname" name="fname" class="form-control-custom"
+                     placeholder="Maria" autocomplete="given-name">
+              <div class="field-error" id="fname-err"><i class="bi bi-exclamation-circle"></i> Required</div>
+            </div>
+            <div class="form-group">
+              <label for="lname">Last Name <span class="req">*</span></label>
+              <input type="text" id="lname" name="lname" class="form-control-custom"
+                     placeholder="Santos" autocomplete="family-name">
+              <div class="field-error" id="lname-err"><i class="bi bi-exclamation-circle"></i> Required</div>
+            </div>
+          </div>
+
+          <!-- Email + Phone -->
+          <div class="form-row-grid">
+            <div class="form-group">
+              <label for="email">Email Address <span class="req">*</span></label>
+              <input type="email" id="email" name="email" class="form-control-custom"
+                     placeholder="you@example.com" autocomplete="email">
+              <div class="field-error" id="email-err"><i class="bi bi-exclamation-circle"></i> Valid email required</div>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" name="phone" class="form-control-custom"
+                     placeholder="+63 917 000 0000" autocomplete="tel">
+            </div>
+          </div>
+
+          <!-- Topic Tags -->
+          <div class="form-group">
+            <label>Topic <span class="req">*</span></label>
+            <div class="topic-tags" id="topicTags">
+              <span class="topic-tag" data-val="general" onclick="selectTopic(this)">
+                <i class="bi bi-chat-dots"></i> General Inquiry
+              </span>
+              <span class="topic-tag" data-val="wholesale" onclick="selectTopic(this)">
+                <i class="bi bi-bag"></i> Wholesale
+              </span>
+              <span class="topic-tag" data-val="catering" onclick="selectTopic(this)">
+                <i class="bi bi-cup-hot"></i> Catering / Events
+              </span>
+              <span class="topic-tag" data-val="sourcing" onclick="selectTopic(this)">
+                <i class="bi bi-geo-alt"></i> Sourcing / Farms
+              </span>
+              <span class="topic-tag" data-val="feedback" onclick="selectTopic(this)">
+                <i class="bi bi-star"></i> Feedback
+              </span>
+              <span class="topic-tag" data-val="other" onclick="selectTopic(this)">
+                <i class="bi bi-three-dots"></i> Other
+              </span>
+            </div>
+            <div class="field-error" id="topic-err"><i class="bi bi-exclamation-circle"></i> Please select a topic</div>
+            <input type="hidden" id="topicValue" name="topic">
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- Subject -->
+          <div class="form-group">
+            <label for="subject">Subject <span class="req">*</span></label>
+            <input type="text" id="subject" name="subject" class="form-control-custom"
+                   placeholder="Brief subject of your message">
+            <div class="field-error" id="subject-err"><i class="bi bi-exclamation-circle"></i> Required</div>
+          </div>
+
+          <!-- Message -->
+          <div class="form-group">
+            <label for="message">Your Message <span class="req">*</span></label>
+            <textarea id="message" name="message" class="form-control-custom"
+                      placeholder="Tell us more about what you have in mind…"></textarea>
+            <div class="field-error" id="message-err"><i class="bi bi-exclamation-circle"></i> Please write a message</div>
+          </div>
+
+          <!-- How did you hear -->
+          <div class="form-group">
+            <label for="source">How did you hear about us?</label>
+            <select id="source" name="source" class="form-control-custom">
+              <option value="" disabled selected>Select an option</option>
+              <option value="social">Social Media</option>
+              <option value="friend">Friend / Word of Mouth</option>
+              <option value="search">Google / Search</option>
+              <option value="event">Event or Pop-up</option>
+              <option value="press">Article or Press</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-submit-label"><i class="bi bi-send"></i> Send Message</span>
+            <div class="spinner" id="submitSpinner"></div>
+          </button>
+
+          <p class="privacy-note">
+            <i class="bi bi-shield-lock"></i>
+            Your information is kept private and never shared with third parties.
+          </p>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FIND US ═══════════════════════════ -->
+<section class="find-us">
+  <div class="container">
+    <div class="find-us-grid">
+
+      <div class="map-placeholder reveal">
+        <div class="map-grid"></div>
+        <div class="map-pin">
+          <div class="map-pin-dot"></div>
+          <div class="map-pin-label">Summit Sips Café</div>
+          <div class="map-pin-sub">123 Cordillera St., Baguio City</div>
+        </div>
+        <a href="https://maps.google.com" target="_blank" rel="noopener" class="directions-badge">
+          <i class="bi bi-signpost-split"></i> Get Directions
+        </a>
+      </div>
+
+      <div class="find-us-text reveal reveal-delay-2">
+        <span class="section-eyebrow"><i class="bi bi-compass me-1"></i> Find the Cart</span>
+        <h2 class="section-title mb-3">Find us in <em>Baguio.</em></h2>
+        <p>
+          We operate as a mobile cart — bringing Summit Sips directly to you. Catch us at Irisan Eco Park every day of the week, and at the Baguio Night Market on weekdays.
+        </p>
+        <p>
+          No fixed walls, just the open air, the smell of freshly brewed Benguet coffee, and the mountains all around.
+        </p>
+        <div class="nearby-tag-row">
+          <span class="nearby-tag"><i class="bi bi-tree"></i> Irisan Eco Park</span>
+          <span class="nearby-tag"><i class="bi bi-moon-stars"></i> Baguio Night Market</span>
+          <span class="nearby-tag"><i class="bi bi-cup-hot"></i> Mobile Cart Service</span>
+          <span class="nearby-tag"><i class="bi bi-mountains"></i> Benguet, CAR</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+
+      <div class="col-lg-4">
+        <div class="footer-brand">
+          <img src="Summit_Sips.png" alt="Summit Sips"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="footer-logo-fallback" style="display:none;"><i class="bi bi-cup-hot-fill"></i></div>
+        </div>
+        <p class="footer-tagline">
+          Benguet-grown coffee &amp; tea, sourced with intention and brewed with precision. Every sip connects you to our highlands.
+        </p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/share/1Aw8jjiLkH/?mibextid=wwXIfr" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com/summitsips_/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-tiktok"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Navigate</div>
+        <ul class="footer-links">
+          <li><a href="index.html"><i class="bi bi-house"></i> Home</a></li>
+          <li><a href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+          <li><a href="menu.html"><i class="bi bi-grid"></i> Menu</a></li>
+          <li><a href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Find Us</div>
+        <ul class="footer-links">
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Irisan Eco Park</a></li>
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Baguio Night Market</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <div class="footer-col-title">Get in Touch</div>
+        <div class="footer-contact-item"><i class="bi bi-geo-alt-fill"></i><span>Irisan Eco Park — Mon–Sun, 10:00 AM – 5:00 PM</span></div>
+        <div class="footer-contact-item"><i class="bi bi-geo-alt-fill"></i><span>Baguio Night Market — Mon–Fri, 9:00 PM – 1:00 AM</span></div>
+        <div class="footer-contact-item"><i class="bi bi-tiktok"></i><span><a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" style="color:inherit;">@summit.sips0</a></span></div>
+        <div class="footer-contact-item"><i class="bi bi-instagram"></i><span><a href="https://www.instagram.com/summitsips_/" target="_blank" rel="noopener" style="color:inherit;">@summitsips_</a></span></div>
+      </div>
+
+    </div>
+
+    <div class="footer-divider">
+      <span>&copy; 2025 Summit Sips. All rights reserved.</span>
+      <span>Brewed with <i class="bi bi-heart-fill" style="color:var(--accent);font-size:.7rem;"></i> in the Benguets</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════ THANK YOU MODAL ═══════════════════ -->
+<div class="modal-overlay" id="thankYouModal">
+  <div class="modal-box" id="modalBox">
+
+    <button class="modal-close-btn" onclick="closeModal()"><i class="bi bi-x-lg"></i></button>
+
+    <div class="modal-icon-wrap">
+      <i class="bi bi-check-lg"></i>
+    </div>
+
+    <h3>Thank <em>you!</em></h3>
+    <p>
+      Your message has been received. Our team will review your inquiry and get back to you
+      within <strong>24 hours</strong> — usually much sooner over a freshly brewed cup. ☕
+    </p>
+
+    <div class="modal-meta" id="modalMeta">
+      <div class="modal-meta-row">
+        <i class="bi bi-person"></i>
+        <span>Sent by: <strong id="modalName">—</strong></span>
+      </div>
+      <div class="modal-meta-row">
+        <i class="bi bi-envelope"></i>
+        <span>Reply to: <strong id="modalEmail">—</strong></span>
+      </div>
+      <div class="modal-meta-row">
+        <i class="bi bi-tag"></i>
+        <span>Topic: <strong id="modalTopic">—</strong></span>
+      </div>
+    </div>
+
+    <div class="modal-btn-row">
+      <a href="menu.html" class="btn-modal-primary">
+        <i class="bi bi-grid-3x3-gap"></i> Explore Menu
+      </a>
+      <button class="btn-modal-ghost" onclick="closeModal()">
+        <i class="bi bi-arrow-left"></i> Back to Page
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+  /* ══════════════════════════════════════════
+     CART
+  ══════════════════════════════════════════ */
+  const cart = [];
+  let cartOpen = false;
+
+  function toggleCart() {
+    cartOpen = !cartOpen;
+    document.getElementById('cartPanel').classList.toggle('open', cartOpen);
+    document.getElementById('cartOverlay').classList.toggle('open', cartOpen);
+    document.body.style.overflow = cartOpen ? 'hidden' : '';
+  }
+
+  function renderCart() {
+    const badge = document.getElementById('cartBadge');
+    const items = document.getElementById('cartItems');
+    const empty = document.getElementById('cartEmpty');
+    const total = document.getElementById('cartTotal');
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    const sum   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    badge.textContent = count;
+    badge.classList.toggle('visible', count > 0);
+    empty.style.display = cart.length ? 'none' : 'flex';
+    items.innerHTML = '';
+    cart.forEach(item => {
+      items.innerHTML += `<div class="cart-item"><div class="cart-item-icon"><i class="bi bi-${item.icon}"></i></div><div class="cart-item-info"><strong>${item.name}</strong><span>Qty: ${item.qty}</span></div><div class="cart-item-price">₱${(item.price * item.qty).toFixed(2)}</div></div>`;
+    });
+    total.textContent = `₱${sum.toFixed(2)}`;
+  }
+
+  /* ══════════════════════════════════════════
+     TOPIC SELECTOR
+  ══════════════════════════════════════════ */
+  const topicLabels = {
+    general:  'General Inquiry',
+    wholesale:'Wholesale',
+    catering: 'Catering / Events',
+    sourcing: 'Sourcing / Farms',
+    feedback: 'Feedback',
+    other:    'Other'
+  };
+
+  function selectTopic(el) {
+    document.querySelectorAll('.topic-tag').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('topicValue').value = el.dataset.val;
+    showError('topic', false);
+  }
+
+  /* ══════════════════════════════════════════
+     VALIDATION HELPERS
+  ══════════════════════════════════════════ */
+  function showError(field, show, msg) {
+    const errEl = document.getElementById(field + '-err');
+    if (!errEl) return;
+    errEl.classList.toggle('show', show);
+    if (msg) errEl.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${msg}`;
+  }
+
+  function setFieldState(id, state) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('error', 'valid');
+    if (state) el.classList.add(state);
+  }
+
+  function validateEmail(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  }
+
+  function validateForm() {
+    let valid = true;
+
+    const fname = document.getElementById('fname').value.trim();
+    if (!fname) {
+      setFieldState('fname', 'error'); showError('fname', true, 'First name is required'); valid = false;
+    } else {
+      setFieldState('fname', 'valid'); showError('fname', false);
+    }
+
+    const lname = document.getElementById('lname').value.trim();
+    if (!lname) {
+      setFieldState('lname', 'error'); showError('lname', true, 'Last name is required'); valid = false;
+    } else {
+      setFieldState('lname', 'valid'); showError('lname', false);
+    }
+
+    const email = document.getElementById('email').value.trim();
+    if (!validateEmail(email)) {
+      setFieldState('email', 'error'); showError('email', true, 'Please enter a valid email'); valid = false;
+    } else {
+      setFieldState('email', 'valid'); showError('email', false);
+    }
+
+    const topic = document.getElementById('topicValue').value;
+    if (!topic) {
+      showError('topic', true, 'Please select a topic'); valid = false;
+    } else {
+      showError('topic', false);
+    }
+
+    const subject = document.getElementById('subject').value.trim();
+    if (!subject) {
+      setFieldState('subject', 'error'); showError('subject', true, 'Subject is required'); valid = false;
+    } else {
+      setFieldState('subject', 'valid'); showError('subject', false);
+    }
+
+    const message = document.getElementById('message').value.trim();
+    if (message.length < 10) {
+      setFieldState('message', 'error'); showError('message', true, 'Please write at least 10 characters'); valid = false;
+    } else {
+      setFieldState('message', 'valid'); showError('message', false);
+    }
+
+    return valid;
+  }
+
+  /* ── Live validation on blur ── */
+  ['fname','lname','email','subject','message'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('blur', () => validateForm());
+    el.addEventListener('input', () => {
+      el.classList.remove('error');
+      showError(id, false);
+    });
+  });
+
+  /* ══════════════════════════════════════════
+     FORM SUBMIT
+  ══════════════════════════════════════════ */
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const btn     = document.getElementById('submitBtn');
+    const label   = btn.querySelector('.btn-submit-label');
+    const spinner = document.getElementById('submitSpinner');
+
+    // Show loading state
+    btn.disabled = true;
+    label.style.display = 'none';
+    spinner.style.display = 'block';
+
+    // Simulate async submission
+    setTimeout(() => {
+      btn.disabled = false;
+      label.style.display = 'flex';
+      spinner.style.display = 'none';
+
+      // Populate modal with submitted data
+      const fname = document.getElementById('fname').value.trim();
+      const lname = document.getElementById('lname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const topic = document.getElementById('topicValue').value;
+
+      document.getElementById('modalName').textContent  = `${fname} ${lname}`;
+      document.getElementById('modalEmail').textContent = email;
+      document.getElementById('modalTopic').textContent = topicLabels[topic] || topic;
+
+      openModal();
+      launchConfetti();
+
+    }, 1600);
+  });
+
+  /* ══════════════════════════════════════════
+     MODAL CONTROL
+  ══════════════════════════════════════════ */
+  function openModal() {
+    const overlay = document.getElementById('thankYouModal');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    const overlay = document.getElementById('thankYouModal');
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    document.getElementById('contactForm').reset();
+    document.querySelectorAll('.topic-tag').forEach(t => t.classList.remove('selected'));
+    document.getElementById('topicValue').value = '';
+    ['fname','lname','email','subject','message'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('valid', 'error');
+    });
+  }
+
+  // Close on overlay click
+  document.getElementById('thankYouModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* ══════════════════════════════════════════
+     CONFETTI
+  ══════════════════════════════════════════ */
+  function launchConfetti() {
+    const box    = document.getElementById('modalBox');
+    const colors = ['#c8a96e','#3a7bd5','#2d9e6b','#ffffff','#1a4a8a'];
+    for (let i = 0; i < 22; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'confetti-dot';
+      const size = Math.random() * 8 + 5;
+      dot.style.cssText = `
+        width:${size}px; height:${size}px;
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        top:${Math.random() * 40}%;
+        left:${Math.random() * 100}%;
+        animation-delay:${Math.random() * .4}s;
+        animation-duration:${.9 + Math.random() * .6}s;
+        opacity:.85;
+      `;
+      box.appendChild(dot);
+      dot.addEventListener('animationend', () => dot.remove());
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     HAMBURGER
+  ══════════════════════════════════════════ */
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  /* ══════════════════════════════════════════
+     SCROLL REVEAL
+  ══════════════════════════════════════════ */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+</script>
+</body>
+</html>

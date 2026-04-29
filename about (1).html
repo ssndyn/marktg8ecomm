@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us — Summit Sips · Craft Coffee & Tea</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --navy:     #0d2b4e;
+      --cobalt:   #1a4a8a;
+      --sky:      #3a7bd5;
+      --frost:    #e8f1fc;
+      --white:    #ffffff;
+      --mist:     #f4f8ff;
+      --text:     #1c2b3a;
+      --sub:      #5a7290;
+      --accent:   #c8a96e;
+      --line:     rgba(13,43,78,.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+
+    h1,h2,h3,h4,h5 { font-family: 'Cormorant Garamond', serif; }
+
+    /* ─── NAVBAR ─────────────────────────────────────────── */
+    .summit-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+      padding: 0 0;
+    }
+
+    .summit-nav .navbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: .85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .summit-nav .brand-logo img {
+      height: 46px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .logo-fallback {
+      height: 46px;
+      width: 46px;
+      background: var(--navy);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 1.3rem;
+    }
+
+    .summit-nav .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex: 1;
+    }
+
+    .summit-nav .nav-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--sub);
+      text-decoration: none;
+      padding: .4rem 1.1rem;
+      border-radius: 20px;
+      transition: all .22s;
+    }
+
+    .summit-nav .nav-links a:hover,
+    .summit-nav .nav-links a.active {
+      color: var(--navy);
+      background: var(--frost);
+    }
+
+    .sip-btn {
+      position: relative;
+      background: var(--navy);
+      color: var(--white) !important;
+      border: none;
+      padding: .58rem 1.3rem .58rem 1.1rem !important;
+      border-radius: 30px !important;
+      font-size: .78rem !important;
+      letter-spacing: .07em !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center;
+      gap: .4rem;
+      white-space: nowrap;
+      transition: background .22s, transform .18s !important;
+    }
+
+    .sip-btn:hover {
+      background: var(--cobalt) !important;
+      transform: translateY(-1px);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -6px; right: -6px;
+      background: var(--accent);
+      color: var(--navy);
+      font-size: .6rem;
+      font-weight: 700;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: scale(.5);
+      transition: all .2s;
+    }
+    .cart-badge.visible { opacity: 1; transform: scale(1); }
+
+    .nav-toggle {
+      display: none;
+      background: none; border: none;
+      font-size: 1.4rem;
+      color: var(--navy);
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-toggle { display: flex; align-items: center; }
+      .nav-links   { display: none !important; }
+      .nav-links.open { display: flex !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--white); padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); gap: .3rem; }
+    }
+
+    /* ─── CART PANEL ─────────────────────────────────────── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(13,43,78,.35);
+      z-index: 1100; opacity: 0; pointer-events: none;
+      transition: opacity .28s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+
+    .cart-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(380px, 100vw);
+      background: var(--white);
+      z-index: 1200;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      box-shadow: -8px 0 40px rgba(13,43,78,.12);
+    }
+    .cart-panel.open { transform: translateX(0); }
+
+    .cart-header {
+      padding: 1.4rem 1.5rem;
+      border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-header h5 {
+      font-size: 1.3rem; font-weight: 600; color: var(--navy);
+      margin: 0;
+    }
+    .cart-close {
+      background: none; border: none; font-size: 1.2rem;
+      color: var(--sub); cursor: pointer;
+      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background .18s;
+    }
+    .cart-close:hover { background: var(--frost); }
+
+    .cart-body {
+      flex: 1; overflow-y: auto; padding: 1.2rem 1.5rem;
+    }
+
+    .cart-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%;
+      color: var(--sub); gap: .6rem; text-align: center;
+    }
+    .cart-empty i { font-size: 2.5rem; color: var(--frost); }
+
+    .cart-item {
+      display: flex; gap: 1rem; padding: .9rem 0;
+      border-bottom: 1px solid var(--line); align-items: center;
+    }
+    .cart-item-icon {
+      width: 46px; height: 46px; background: var(--frost);
+      border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; color: var(--cobalt); font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-info strong { font-size: .88rem; color: var(--navy); display: block; }
+    .cart-item-info span  { font-size: .78rem; color: var(--sub); }
+    .cart-item-price { font-size: .9rem; font-weight: 600; color: var(--cobalt); }
+
+    .cart-footer {
+      padding: 1.2rem 1.5rem;
+      border-top: 1px solid var(--line);
+    }
+    .cart-total {
+      display: flex; justify-content: space-between;
+      font-weight: 600; font-size: .95rem; color: var(--navy);
+      margin-bottom: 1rem;
+    }
+    .btn-checkout {
+      display: block; width: 100%;
+      background: var(--navy); color: var(--white);
+      border: none; padding: .85rem; border-radius: 30px;
+      font-size: .85rem; font-weight: 600; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-checkout:hover { background: var(--cobalt); }
+
+    /* ─── PAGE HERO ──────────────────────────────────────── */
+    .page-hero {
+      min-height: 62vh;
+      background: linear-gradient(155deg, #0d2b4e 0%, #1a4a8a 55%, #3a7bd5 100%);
+      display: flex; align-items: flex-end;
+      position: relative; overflow: hidden;
+      padding-top: 80px;
+      padding-bottom: 5rem;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 80% 30%, rgba(58,123,213,.2) 0%, transparent 65%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .page-hero-ring {
+      position: absolute; left: -10vw; top: 50%;
+      transform: translateY(-50%);
+      width: 55vw; height: 55vw;
+      max-width: 620px; max-height: 620px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.06);
+      pointer-events: none;
+    }
+    .page-hero-ring::before {
+      content: '';
+      position: absolute; inset: 14%;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.05);
+    }
+
+    .page-hero-content { position: relative; z-index: 2; }
+
+    .breadcrumb-trail {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .76rem; color: rgba(255,255,255,.4);
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 1.4rem;
+    }
+    .breadcrumb-trail a { color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .breadcrumb-trail a:hover { color: var(--accent); }
+    .breadcrumb-trail .bc-sep { color: rgba(255,255,255,.2); }
+    .breadcrumb-trail .bc-cur { color: var(--accent); }
+
+    .page-hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .72rem; font-weight: 500; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent);
+      background: rgba(200,169,110,.12); border: 1px solid rgba(200,169,110,.25);
+      padding: .38rem .9rem; border-radius: 20px;
+      margin-bottom: 1.4rem;
+    }
+
+    .page-hero h1 {
+      font-size: clamp(2.6rem, 5.5vw, 4.5rem);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--accent); }
+
+    .page-hero-desc {
+      font-size: 1rem; color: rgba(255,255,255,.6);
+      max-width: 520px; line-height: 1.75;
+    }
+
+    /* ─── SECTION SHARED ─────────────────────────────────── */
+    section { padding: 6rem 0; }
+
+    .section-eyebrow {
+      font-size: .72rem; font-weight: 500; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--sky);
+      margin-bottom: .7rem; display: block;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 300; line-height: 1.18;
+      color: var(--navy);
+    }
+    .section-title em { font-style: italic; color: var(--cobalt); }
+
+    /* ─── MISSION SECTION ────────────────────────────────── */
+    .mission { background: var(--white); }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    @media(max-width:768px) { .mission-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+    .mission-body p {
+      color: var(--sub); line-height: 1.85; font-size: .96rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .mission-quote {
+      margin: 2rem 0;
+      padding: 1.5rem 1.8rem;
+      border-left: 3px solid var(--accent);
+      background: var(--mist);
+      border-radius: 0 16px 16px 0;
+    }
+    .mission-quote blockquote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-style: italic;
+      color: var(--navy); line-height: 1.5; margin: 0 0 .6rem;
+    }
+    .mission-quote cite {
+      font-size: .78rem; color: var(--sub); font-style: normal;
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+
+    .mission-visual-wrap {
+      position: relative;
+    }
+
+    .mission-stat-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+
+    .mission-stat-card {
+      background: var(--mist);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 1.8rem 1.5rem;
+      text-align: center;
+      transition: all .22s;
+      position: relative; overflow: hidden;
+    }
+    .mission-stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cobalt), var(--sky));
+    }
+    .mission-stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 36px rgba(13,43,78,.08);
+    }
+    .mission-stat-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem; font-weight: 600;
+      color: var(--navy); line-height: 1; margin-bottom: .4rem;
+    }
+    .mission-stat-val em { font-style: normal; color: var(--cobalt); }
+    .mission-stat-label {
+      font-size: .75rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--sub);
+    }
+
+    .mission-cta-row {
+      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.8rem;
+    }
+
+    .btn-primary-nav {
+      background: var(--navy); color: var(--white);
+      border: none; padding: .75rem 1.8rem;
+      border-radius: 30px; font-weight: 600;
+      font-size: .86rem; letter-spacing: .05em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-primary-nav:hover {
+      background: var(--cobalt); transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(13,43,78,.18);
+      color: var(--white);
+    }
+
+    .btn-ghost-nav {
+      background: transparent; color: var(--navy);
+      border: 1.5px solid var(--line); padding: .75rem 1.8rem;
+      border-radius: 30px; font-weight: 500;
+      font-size: .86rem; letter-spacing: .05em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-ghost-nav:hover {
+      background: var(--frost); border-color: rgba(58,123,213,.3);
+      color: var(--navy);
+    }
+
+    /* ─── STORY TIMELINE ────────────────────────────────── */
+    .story-timeline { background: var(--mist); }
+
+    .timeline-wrap {
+      position: relative;
+      margin-top: 3.5rem;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--line) 8%, var(--line) 92%, transparent);
+      transform: translateX(-50%);
+    }
+    @media(max-width:768px) {
+      .timeline-line { left: 28px; }
+    }
+
+    .timeline-event {
+      display: grid;
+      grid-template-columns: 1fr 80px 1fr;
+      align-items: center;
+      margin-bottom: 3rem;
+    }
+    @media(max-width:768px) {
+      .timeline-event {
+        grid-template-columns: 56px 1fr;
+        grid-template-rows: auto;
+        margin-bottom: 2rem;
+      }
+      .timeline-event-left { display: none; }
+    }
+
+    .timeline-event-left { text-align: right; padding-right: 2rem; }
+    .timeline-event-right { padding-left: 2rem; }
+
+    .timeline-node {
+      display: flex; flex-direction: column; align-items: center; gap: .4rem;
+      position: relative; z-index: 2;
+    }
+    .timeline-dot {
+      width: 42px; height: 42px;
+      background: var(--white);
+      border: 2px solid var(--cobalt);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--cobalt); font-size: 1rem;
+      box-shadow: 0 0 0 6px var(--mist);
+    }
+    .timeline-year {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 600; color: var(--cobalt);
+    }
+
+    .timeline-card {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.5rem 1.6rem;
+      box-shadow: 0 4px 20px rgba(13,43,78,.05);
+      transition: all .22s;
+    }
+    .timeline-card:hover {
+      box-shadow: 0 10px 32px rgba(13,43,78,.1);
+      transform: translateY(-2px);
+    }
+    .timeline-card h4 {
+      font-size: 1.15rem; font-weight: 600; color: var(--navy);
+      margin-bottom: .5rem;
+    }
+    .timeline-card p {
+      font-size: .86rem; color: var(--sub); line-height: 1.75; margin: 0;
+    }
+
+    /* alternating layout */
+    .timeline-event:nth-child(even) .timeline-event-left { order: 3; text-align: left; padding-right: 0; padding-left: 2rem; }
+    .timeline-event:nth-child(even) .timeline-node     { order: 2; }
+    .timeline-event:nth-child(even) .timeline-event-right { order: 1; text-align: right; padding-left: 0; padding-right: 2rem; }
+    @media(max-width:768px) {
+      .timeline-event:nth-child(even) .timeline-event-left,
+      .timeline-event:nth-child(even) .timeline-event-right { order: unset; text-align: left; padding: 0 0 0 .8rem; }
+      .timeline-event:nth-child(even) .timeline-node { order: unset; }
+    }
+
+    /* ─── TEAM SECTION ───────────────────────────────────── */
+    .team-section { background: var(--white); }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.8rem;
+      margin-top: 3rem;
+    }
+    @media(max-width:992px) { .team-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:576px) { .team-grid { grid-template-columns: 1fr; } }
+
+    .team-card {
+      background: var(--mist);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 2rem 1.8rem;
+      text-align: center;
+      transition: all .25s;
+      position: relative; overflow: hidden;
+    }
+    .team-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cobalt), var(--sky));
+      transform: scaleX(0); transform-origin: center;
+      transition: transform .3s;
+    }
+    .team-card:hover { transform: translateY(-5px); box-shadow: 0 18px 42px rgba(13,43,78,.1); }
+    .team-card:hover::after { transform: scaleX(1); }
+
+    .team-avatar {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--cobalt), var(--sky));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; color: var(--white);
+      margin: 0 auto 1.2rem;
+      box-shadow: 0 6px 20px rgba(26,74,138,.25);
+    }
+
+    .team-card h4 {
+      font-size: 1.3rem; font-weight: 600; color: var(--navy);
+      margin-bottom: .2rem;
+    }
+    .team-role {
+      font-size: .75rem; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--sky);
+      margin-bottom: .9rem; display: block;
+    }
+    .team-card p {
+      font-size: .86rem; color: var(--sub); line-height: 1.75; margin: 0;
+    }
+
+    .team-social-row {
+      display: flex; justify-content: center; gap: .5rem; margin-top: 1.1rem;
+    }
+    .team-social-btn {
+      width: 32px; height: 32px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--sub); font-size: .82rem;
+      transition: all .2s; text-decoration: none;
+    }
+    .team-social-btn:hover {
+      background: var(--frost); color: var(--cobalt); border-color: rgba(58,123,213,.2);
+    }
+
+    /* ─── VALUES SECTION ─────────────────────────────────── */
+    .values-section {
+      background: var(--navy);
+      position: relative; overflow: hidden;
+    }
+
+    .values-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Ccircle cx='40' cy='40' r='1' fill='%23ffffff' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .values-section .section-eyebrow { color: var(--accent); }
+    .values-section .section-title   { color: var(--white); }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    @media(max-width:576px) { .values-grid { grid-template-columns: 1fr; } }
+
+    .value-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px;
+      padding: 2rem;
+      display: flex; gap: 1.3rem; align-items: flex-start;
+      transition: all .25s;
+    }
+    .value-card:hover {
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.18);
+      transform: translateY(-3px);
+    }
+
+    .value-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: rgba(200,169,110,.15);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--accent);
+    }
+
+    .value-card h4 {
+      font-size: 1.2rem; font-weight: 600; color: var(--white);
+      margin-bottom: .4rem;
+    }
+    .value-card p {
+      font-size: .86rem; color: rgba(255,255,255,.55); line-height: 1.75; margin: 0;
+    }
+
+    /* ─── PARTNERS / FARMS STRIP ─────────────────────────── */
+    .farms-strip { background: var(--white); padding: 4rem 0; }
+
+    .farm-logos {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      justify-content: center; align-items: center;
+      margin-top: 2.5rem;
+    }
+
+    .farm-tag {
+      display: inline-flex; align-items: center; gap: .6rem;
+      background: var(--mist);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: .65rem 1.1rem;
+      font-size: .82rem; color: var(--navy);
+      font-weight: 500;
+      transition: all .2s;
+    }
+    .farm-tag i { color: var(--cobalt); font-size: .9rem; }
+    .farm-tag:hover {
+      background: var(--frost);
+      border-color: rgba(58,123,213,.2);
+      transform: translateY(-2px);
+    }
+
+    /* ─── CTA SECTION ────────────────────────────────────── */
+    .about-cta {
+      background: linear-gradient(135deg, #0d2b4e, #1a4a8a);
+      padding: 6rem 0;
+      position: relative; overflow: hidden;
+    }
+
+    .about-cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .cta-box {
+      text-align: center; position: relative; z-index: 2;
+    }
+    .cta-box h2 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 300; color: var(--white);
+      margin-bottom: 1rem;
+    }
+    .cta-box h2 em { font-style: italic; color: var(--accent); }
+    .cta-box p {
+      font-size: 1rem; color: rgba(255,255,255,.55);
+      max-width: 480px; margin: 0 auto 2.5rem; line-height: 1.75;
+    }
+    .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn-cta-primary {
+      background: var(--accent); color: var(--navy);
+      border: none; padding: .85rem 2.2rem;
+      border-radius: 30px; font-weight: 600;
+      font-size: .88rem; letter-spacing: .05em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-cta-primary:hover {
+      background: #d4b87a; transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(200,169,110,.35);
+      color: var(--navy);
+    }
+
+    .btn-cta-ghost {
+      background: transparent; color: rgba(255,255,255,.8);
+      border: 1px solid rgba(255,255,255,.25); padding: .85rem 2.2rem;
+      border-radius: 30px; font-weight: 500;
+      font-size: .88rem; letter-spacing: .05em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-cta-ghost:hover {
+      background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.5);
+      color: #fff;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    .site-footer {
+      background: #08192e;
+      color: rgba(255,255,255,.5);
+      padding: 4rem 0 2rem;
+    }
+
+    .footer-brand {
+      display: flex; align-items: center; gap: .8rem;
+      margin-bottom: 1rem;
+    }
+    .footer-brand img { height: 40px; }
+    .footer-logo-fallback {
+      height: 40px; width: 40px;
+      background: var(--cobalt); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.1rem;
+    }
+
+    .footer-tagline { font-size: .86rem; line-height: 1.7; max-width: 260px; }
+
+    .footer-socials {
+      display: flex; gap: .6rem; margin-top: 1.2rem;
+    }
+    .footer-social-btn {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.4); font-size: .9rem;
+      transition: all .2s; text-decoration: none;
+    }
+    .footer-social-btn:hover {
+      background: rgba(255,255,255,.12); color: rgba(255,255,255,.8);
+    }
+
+    .footer-col-title {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 600; color: rgba(255,255,255,.25);
+      margin-bottom: 1.1rem;
+    }
+    .footer-links { list-style: none; padding: 0; margin: 0; }
+    .footer-links li + li { margin-top: .55rem; }
+    .footer-links a {
+      font-size: .86rem; color: rgba(255,255,255,.45);
+      text-decoration: none; transition: color .18s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,.8); }
+
+    .footer-contact-item {
+      display: flex; align-items: flex-start; gap: .7rem;
+      font-size: .86rem; margin-bottom: .75rem;
+    }
+    .footer-contact-item i { color: var(--accent); font-size: .9rem; margin-top: .15rem; }
+
+    .footer-divider {
+      border-top: 1px solid rgba(255,255,255,.07);
+      margin-top: 3rem; padding-top: 1.5rem;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+      font-size: .78rem; color: rgba(255,255,255,.25);
+    }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .32s; }
+    .reveal-delay-4 { transition-delay: .44s; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ════════════════════════════ -->
+<nav class="summit-nav">
+  <div class="navbar-inner">
+
+    <a href="index.html" class="brand-logo">
+      <img src="Summit_Sips.png" alt="Summit Sips"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="logo-fallback" style="display:none;">
+        <i class="bi bi-cup-hot-fill"></i>
+      </div>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+
+    <button class="sip-btn" id="sipBtn" onclick="toggleCart()">
+      <i class="bi bi-cup-hot"></i>
+      Sip Now
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ CART PANEL ════════════════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h5><i class="bi bi-bag me-2" style="font-size:1rem;color:var(--cobalt)"></i>Your Order</h5>
+    <button class="cart-close" onclick="toggleCart()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty" id="cartEmpty">
+      <i class="bi bi-cup"></i>
+      <strong style="color:var(--sub);font-size:.92rem;">No items yet</strong>
+      <span style="font-size:.8rem;">Explore our menu and add your favorites.</span>
+    </div>
+    <div id="cartItems"></div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">₱0.00</span>
+    </div>
+    <button class="btn-checkout">
+      <i class="bi bi-bag-check me-2"></i>Place Order
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════ PAGE HERO ═════════════════════════ -->
+<section class="page-hero">
+  <div class="page-hero-ring"></div>
+  <div class="container">
+    <div class="page-hero-content" style="max-width:640px;">
+      <div class="breadcrumb-trail">
+        <a href="index.html">Home</a>
+        <span class="bc-sep"><i class="bi bi-chevron-right" style="font-size:.65rem;"></i></span>
+        <span class="bc-cur">About Us</span>
+      </div>
+      <span class="page-hero-eyebrow">
+        <i class="bi bi-heart-fill"></i>
+        Our Story
+      </span>
+      <h1>
+        Brewed with<br>
+        <em>purpose</em> and<br>
+        highland pride.
+      </h1>
+      <p class="page-hero-desc">
+        Summit Sips is more than a café — it's a movement to celebrate BENGUET agriculture,
+        uplift mountain communities, and bring world-class specialty coffee and tea to your hands.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MISSION ═══════════════════════════ -->
+<section class="mission">
+  <div class="container">
+    <div class="mission-grid">
+
+      <!-- Text -->
+      <div class="mission-body reveal">
+        <span class="section-eyebrow"><i class="bi bi-compass me-1"></i> Our Mission</span>
+        <h2 class="section-title mb-3">
+          Closing the gap between <em>farm</em> and cup.
+        </h2>
+        <p>
+          Most Benguet coffee and tea travels through too many hands before it reaches you —
+          losing traceability, freshness, and the story behind it. We founded Summit Sips to
+          dismantle that chain entirely.
+        </p>
+        <p>
+          We travel directly to the highlands, meet the farmers, assess the harvest, and build
+          relationships that last seasons — not just transactions. The result is a cup you can
+          trust, from an origin you can name.
+        </p>
+
+        <div class="mission-quote">
+          <blockquote>"Tasting our coffee should feel like standing on a Benguet terrace at dawn — clear, honest, and completely alive."</blockquote>
+          <cite>— Shannen Sindayen, Co-Founder & Head Roaster</cite>
+        </div>
+
+        <div class="mission-cta-row">
+          <a href="menu.html" class="btn-primary-nav">
+            <i class="bi bi-grid-3x3-gap"></i> Explore Menu
+          </a>
+          <a href="contact.html" class="btn-ghost-nav">
+            <i class="bi bi-envelope"></i> Get in Touch
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="mission-visual-wrap reveal reveal-delay-2">
+        <div class="mission-stat-grid">
+          <div class="mission-stat-card">
+            <div class="mission-stat-val">10<em>+</em></div>
+            <div class="mission-stat-label">Farm Partners</div>
+          </div>
+          <div class="mission-stat-card">
+            <div class="mission-stat-val">100<em>%</em></div>
+            <div class="mission-stat-label">Benguet Grown</div>
+          </div>
+          <div class="mission-stat-card">
+            <div class="mission-stat-val">4</div>
+            <div class="mission-stat-label">Brew Methods</div>
+          </div>
+          <div class="mission-stat-card">
+            <div class="mission-stat-val">86<em>+</em></div>
+            <div class="mission-stat-label">SCA Score Average</div>
+          </div>
+ 
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ STORY TIMELINE ════════════════════ -->
+<section class="story-timeline">
+  <div class="container">
+    <div class="text-center mb-2 reveal">
+      <span class="section-eyebrow"><i class="bi bi-clock-history me-1"></i> Our Journey</span>
+      <h2 class="section-title">How Summit Sips <em>came to be.</em></h2>
+      <p class="mt-2" style="color:var(--sub);max-width:500px;margin:1rem auto 0;font-size:.94rem;">
+        From a small kitchen roaster to a highland-rooted craft café — every milestone shaped the cup you hold today.
+      </p>
+    </div>
+
+    <div class="timeline-wrap">
+      <div class="timeline-line"></div>
+
+      <!-- Event 1 -->
+      <div class="timeline-event">
+        <div class="timeline-event-left reveal">
+          <div class="timeline-card">
+            <h4>The First Bag</h4>
+            <p>Co-founders Hannie and Rinri haul back 5 kg of Benguet Arabica from a weekend trip to Atok. A single pour-over in their Baguio City apartment changes everything.</p>
+          </div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-dot"><i class="bi bi-cup-hot"></i></div>
+          <div class="timeline-year">2019</div>
+        </div>
+        <div class="timeline-event-right"></div>
+      </div>
+
+      <!-- Event 2 -->
+      <div class="timeline-event">
+        <div class="timeline-event-left"></div>
+        <div class="timeline-node">
+          <div class="timeline-dot"><i class="bi bi-people"></i></div>
+          <div class="timeline-year">2020</div>
+        </div>
+        <div class="timeline-event-right reveal reveal-delay-1">
+          <div class="timeline-card">
+            <h4>Farm Partnerships Begin</h4>
+            <p>Three Ibaloi farmer families in Benguet join as direct-trade partners. Summit Sips starts a home-roasting micro-batch subscription — 40 early subscribers become the founding community.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event 3 -->
+      <div class="timeline-event">
+        <div class="timeline-event-left reveal reveal-delay-1">
+          <div class="timeline-card">
+            <h4>Sagada Tea Arrives</h4>
+            <p>A chance introduction to a Sagada elder leads to sourcing wild mountain tea leaves — the first non-coffee product and a defining moment for the brand identity.</p>
+          </div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-dot"><i class="bi bi-flower2"></i></div>
+          <div class="timeline-year">2021</div>
+        </div>
+        <div class="timeline-event-right"></div>
+      </div>
+
+      <!-- Event 4 -->
+      <div class="timeline-event">
+        <div class="timeline-event-left"></div>
+        <div class="timeline-node">
+          <div class="timeline-dot"><i class="bi bi-shop"></i></div>
+          <div class="timeline-year">2022</div>
+        </div>
+        <div class="timeline-event-right reveal reveal-delay-1">
+          <div class="timeline-card">
+            <h4>First Mobile Cart Launches</h4>
+            <p>Summit Sips launches its first mobile cart at Irisan — starting from the heart of the Irisan community. With traceability QR codes on every cup and zero imported beans, the highlands come to you.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event 5 -->
+      <div class="timeline-event">
+        <div class="timeline-event-left reveal reveal-delay-1">
+          <div class="timeline-card">
+            <h4>SCA Recognition & Expansion</h4>
+            <p>Benguet Arabica lot achieves an 88-point SCA score — the highest ever recorded for a Benguet washed process. Two new farm regions join: Sultan Kudarat Robusta and Batangas Barako.</p>
+          </div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-dot"><i class="bi bi-award"></i></div>
+          <div class="timeline-year">2024</div>
+        </div>
+        <div class="timeline-event-right"></div>
+      </div>
+
+      <!-- Event 6 -->
+      <div class="timeline-event">
+        <div class="timeline-event-left"></div>
+        <div class="timeline-node">
+          <div class="timeline-dot" style="border-color:var(--accent);color:var(--accent);"><i class="bi bi-rocket"></i></div>
+          <div class="timeline-year" style="color:var(--accent);">2026</div>
+        </div>
+        <div class="timeline-event-right reveal reveal-delay-1">
+          <div class="timeline-card" style="border-color:rgba(200,169,110,.3);background:rgba(200,169,110,.04);">
+            <h4>Online Platform Launches <span style="font-size:.7rem;background:rgba(200,169,110,.15);color:var(--accent);border-radius:8px;padding:.2rem .55rem;margin-left:.4rem;vertical-align:middle;letter-spacing:.06em;">NOW</span></h4>
+            <p>Summit Sips goes digital — order ahead, explore full traceability, and have your favorite Benguet-grown brew ready when you arrive. The highlands, now at your fingertips.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+ 
+<!-- ═══════════════════ VALUES ════════════════════════════ -->
+<section class="values-section">
+  <div class="container position-relative">
+
+    <div class="text-center mb-2 reveal">
+      <span class="section-eyebrow"><i class="bi bi-shield-check me-1"></i> What We Stand For</span>
+      <h2 class="section-title">Principles we <em>never compromise.</em></h2>
+      <p class="mt-2" style="color:rgba(255,255,255,.5);max-width:480px;margin:1rem auto 0;font-size:.94rem;">
+        These aren't marketing words. They're the commitments we make to every farmer, every customer, and every cup.
+      </p>
+    </div>
+
+    <div class="values-grid">
+
+      <div class="value-card reveal reveal-delay-1">
+        <div class="value-icon"><i class="bi bi-geo-alt-fill"></i></div>
+        <div>
+          <h4>Benguet-First Sourcing</h4>
+          <p>Every single ingredient we use is grown in the Benguets. We don't import to fill gaps — we build relationships to make local exceptional.</p>
+        </div>
+      </div>
+
+      <div class="value-card reveal reveal-delay-2">
+        <div class="value-icon"><i class="bi bi-recycle"></i></div>
+        <div>
+          <h4>Ecological Responsibility</h4>
+          <p>Shade-grown cultivation only. We reject farms that clear forest for monoculture — our highlands need biodiversity to keep producing extraordinary flavor.</p>
+        </div>
+      </div>
+
+      <div class="value-card reveal reveal-delay-3">
+        <div class="value-icon"><i class="bi bi-cup-hot"></i></div>
+        <div>
+          <h4>Direct & Fair Trade</h4>
+          <p>We pay above-market prices direct to farmers — cutting out brokers and ensuring the people who do the hardest work earn the most from it.</p>
+        </div>
+      </div>
+
+      <div class="value-card reveal reveal-delay-4">
+        <div class="value-icon"><i class="bi bi-eye"></i></div>
+        <div>
+          <h4>Full Transparency</h4>
+          <p>Every cup carries a QR code linking to the farm, harvest date, elevation, and farmer name. We believe you deserve to know exactly what you're drinking.</p>
+        </div>
+      </div>
+
+      <div class="value-card reveal reveal-delay-1">
+        <div class="value-icon"><i class="bi bi-people-fill"></i></div>
+        <div>
+          <h4>Community Investment</h4>
+          <p>5% of every sale goes directly into a community fund for farm infrastructure, children's education, and climate-resilience programs in our sourcing regions.</p>
+        </div>
+      </div>
+
+      <div class="value-card reveal reveal-delay-2">
+        <div class="value-icon"><i class="bi bi-stars"></i></div>
+        <div>
+          <h4>Uncompromising Quality</h4>
+          <p>We cup every lot against SCA standards before it makes it to our menu. If it doesn't score 84+, it doesn't go in your cup — regardless of the harvest pressure.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FARM PARTNERS STRIP ═══════════════ -->
+<section class="farms-strip">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="section-eyebrow"><i class="bi bi-diagram-3 me-1"></i> Our Partners</span>
+      <h2 class="section-title" style="font-size:clamp(1.6rem,3vw,2.4rem);">The farms that <em>make it possible.</em></h2>
+    </div>
+    <div class="farm-logos reveal">
+      <span class="farm-tag"><i class="bi bi-mountains"></i> Atok Highland Farms — Benguet</span>
+      <span class="farm-tag"><i class="bi bi-tree"></i> Buguias Coffee Collective — Benguet</span>
+      <span class="farm-tag"><i class="bi bi-cup-hot"></i> Tublay Arabica Growers — Benguet</span>
+      <span class="farm-tag"><i class="bi bi-leaf"></i> Itogon Single-Origin Farms — Benguet</span>
+      <span class="farm-tag"><i class="bi bi-flower1"></i> La Trinidad Strawberry Farmers — Benguet</span>
+      <span class="farm-tag"><i class="bi bi-geo-alt"></i> Sablan Calamansi Orchards — Benguet</span>
+      <span class="farm-tag"><i class="bi bi-droplet"></i> Kapangan Heritage Farms — Benguet</span>
+      <span class="farm-tag"><i class="bi bi-shield-check"></i> Benguet Arabica Producers Network</span>
+      <span class="farm-tag"><i class="bi bi-people"></i> Irisan Community Farmers — Baguio</span>
+      <span class="farm-tag"><i class="bi bi-award"></i> Benguet Women's Coffee Circle</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CTA SECTION ═══════════════════════ -->
+<section class="about-cta">
+  <div class="container">
+    <div class="cta-box reveal">
+      <h2>Ready to taste the <em>Summits</em>?</h2>
+      <p>
+        Every cup we serve is a direct connection to the Benguet mountains, the farmers who tend them, and a
+        tradition worth preserving. Come sip with us.
+      </p>
+      <div class="cta-actions">
+        <a href="menu.html" class="btn-cta-primary">
+          <i class="bi bi-grid-3x3-gap"></i> Browse the Menu
+        </a>
+        <a href="contact.html" class="btn-cta-ghost">
+          <i class="bi bi-envelope"></i> Contact Us
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+
+      <div class="col-lg-4">
+        <div class="footer-brand">
+          <img src="Summit_Sips.png" alt="Summit Sips"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="footer-logo-fallback" style="display:none;">
+            <i class="bi bi-cup-hot-fill"></i>
+          </div>
+        </div>
+        <p class="footer-tagline">
+          Benguet-grown coffee &amp; tea, sourced with intention and brewed with precision. Every sip connects you to our highlands.
+        </p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/share/1Aw8jjiLkH/?mibextid=wwXIfr" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com/summitsips_/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-tiktok"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Navigate</div>
+        <ul class="footer-links">
+          <li><a href="index.html"><i class="bi bi-house"></i> Home</a></li>
+          <li><a href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+          <li><a href="menu.html"><i class="bi bi-grid"></i> Menu</a></li>
+          <li><a href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Find Us</div>
+        <ul class="footer-links">
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Irisan Eco Park</a></li>
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Baguio Night Market</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="footer-col-title">Get in Touch</div>
+        <div class="footer-contact-item"><i class="bi bi-geo-alt-fill"></i><span>Irisan Eco Park — Mon–Sun, 10:00 AM – 5:00 PM</span></div>
+        <div class="footer-contact-item"><i class="bi bi-geo-alt-fill"></i><span>Baguio Night Market — Mon–Fri, 9:00 PM – 1:00 AM</span></div>
+        <div class="footer-contact-item"><i class="bi bi-tiktok"></i><span><a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" style="color:inherit;">@summit.sips0</a></span></div>
+        <div class="footer-contact-item"><i class="bi bi-instagram"></i><span><a href="https://www.instagram.com/summitsips_/" target="_blank" rel="noopener" style="color:inherit;">@summitsips_</a></span></div>
+      </div>
+
+    </div>
+
+    <div class="footer-divider">
+      <span>&copy; 2025 Summit Sips. All rights reserved.</span>
+      <span>Brewed with <i class="bi bi-heart-fill" style="color:var(--accent);font-size:.7rem;"></i> in the Benguets</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  /* ── Cart state ─────────────────────────────────── */
+  const cart = [];
+  let cartOpen = false;
+
+  function toggleCart() {
+    cartOpen = !cartOpen;
+    document.getElementById('cartPanel').classList.toggle('open', cartOpen);
+    document.getElementById('cartOverlay').classList.toggle('open', cartOpen);
+    document.body.style.overflow = cartOpen ? 'hidden' : '';
+  }
+
+  function addToCart(name, price, icon) {
+    const existing = cart.find(i => i.name === name);
+    if (existing) { existing.qty++; }
+    else { cart.push({ name, price, icon, qty: 1 }); }
+    renderCart();
+  }
+
+  function renderCart() {
+    const badge   = document.getElementById('cartBadge');
+    const items   = document.getElementById('cartItems');
+    const empty   = document.getElementById('cartEmpty');
+    const total   = document.getElementById('cartTotal');
+
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    const sum   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+    badge.textContent = count;
+    badge.classList.toggle('visible', count > 0);
+    empty.style.display = cart.length ? 'none' : 'flex';
+    items.innerHTML = '';
+
+    cart.forEach(item => {
+      items.innerHTML += `
+        <div class="cart-item">
+          <div class="cart-item-icon"><i class="bi bi-${item.icon}"></i></div>
+          <div class="cart-item-info">
+            <strong>${item.name}</strong>
+            <span>Qty: ${item.qty}</span>
+          </div>
+          <div class="cart-item-price">₱${(item.price * item.qty).toFixed(2)}</div>
+        </div>`;
+    });
+
+    total.textContent = `₱${sum.toFixed(2)}`;
+  }
+
+  /* ── Hamburger ──────────────────────────────────── */
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  /* ── Scroll reveal ──────────────────────────────── */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

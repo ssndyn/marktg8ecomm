@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Summit Sips — Craft Coffee & Tea</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --navy:     #0d2b4e;
+      --cobalt:   #1a4a8a;
+      --sky:      #3a7bd5;
+      --frost:    #e8f1fc;
+      --white:    #ffffff;
+      --mist:     #f4f8ff;
+      --text:     #1c2b3a;
+      --sub:      #5a7290;
+      --accent:   #c8a96e;
+      --line:     rgba(13,43,78,.10);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+
+    h1,h2,h3,h4,h5 { font-family: 'Cormorant Garamond', serif; }
+
+    /* ─── NAVBAR ─────────────────────────────────────────── */
+    .summit-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summit-nav .navbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: .85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .summit-nav .brand-logo img {
+      height: 46px; width: auto; object-fit: contain;
+    }
+
+    .logo-fallback {
+      height: 46px; width: 46px;
+      background: var(--navy); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.3rem;
+    }
+
+    .summit-nav .nav-links {
+      display: flex; gap: 0; list-style: none;
+      margin: 0; padding: 0; flex: 1;
+    }
+
+    .summit-nav .nav-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--sub); text-decoration: none;
+      padding: .4rem 1.1rem; border-radius: 20px;
+      transition: all .22s;
+    }
+
+    .summit-nav .nav-links a:hover,
+    .summit-nav .nav-links a.active {
+      color: var(--navy); background: var(--frost);
+    }
+
+    .sip-btn {
+      position: relative;
+      background: var(--navy); color: var(--white) !important;
+      border: none; padding: .58rem 1.3rem .58rem 1.1rem !important;
+      border-radius: 30px !important; font-size: .78rem !important;
+      letter-spacing: .07em !important; font-weight: 600 !important;
+      display: flex !important; align-items: center; gap: .4rem;
+      white-space: nowrap; transition: background .22s, transform .18s !important;
+    }
+    .sip-btn:hover { background: var(--cobalt) !important; transform: translateY(-1px); }
+
+    .cart-badge {
+      position: absolute; top: -6px; right: -6px;
+      background: var(--accent); color: var(--navy);
+      font-size: .6rem; font-weight: 700;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(.5); transition: all .2s;
+    }
+    .cart-badge.visible { opacity: 1; transform: scale(1); }
+
+    .nav-toggle {
+      display: none; background: none; border: none;
+      font-size: 1.4rem; color: var(--navy); cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .nav-toggle { display: flex; align-items: center; }
+      .nav-links   { display: none !important; }
+      .nav-links.open { display: flex !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--white); padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); gap: .3rem; }
+    }
+
+    /* ─── CART PANEL ─────────────────────────────────────── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(13,43,78,.35);
+      z-index: 1100; opacity: 0; pointer-events: none; transition: opacity .28s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+
+    .cart-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(380px, 100vw); background: var(--white);
+      z-index: 1200; display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      box-shadow: -8px 0 40px rgba(13,43,78,.12);
+    }
+    .cart-panel.open { transform: translateX(0); }
+
+    .cart-header {
+      padding: 1.4rem 1.5rem; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-header h5 { font-size: 1.3rem; font-weight: 600; color: var(--navy); margin: 0; }
+    .cart-close {
+      background: none; border: none; font-size: 1.2rem; color: var(--sub); cursor: pointer;
+      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background .18s;
+    }
+    .cart-close:hover { background: var(--frost); }
+    .cart-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.5rem; }
+    .cart-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%;
+      color: var(--sub); gap: .6rem; text-align: center;
+    }
+    .cart-empty i { font-size: 2.5rem; color: var(--frost); }
+    .cart-item {
+      display: flex; gap: 1rem; padding: .9rem 0;
+      border-bottom: 1px solid var(--line); align-items: center;
+    }
+    .cart-item-icon {
+      width: 46px; height: 46px; background: var(--frost); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--cobalt); font-size: 1.2rem; flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; }
+    .cart-item-info strong { font-size: .88rem; color: var(--navy); display: block; }
+    .cart-item-info span  { font-size: .78rem; color: var(--sub); }
+    .cart-item-price { font-size: .9rem; font-weight: 600; color: var(--cobalt); }
+    .cart-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--line); }
+    .cart-total {
+      display: flex; justify-content: space-between;
+      font-weight: 600; font-size: .95rem; color: var(--navy); margin-bottom: 1rem;
+    }
+    .btn-checkout {
+      display: block; width: 100%; background: var(--navy); color: var(--white);
+      border: none; padding: .85rem; border-radius: 30px;
+      font-size: .85rem; font-weight: 600; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer; transition: background .2s;
+    }
+    .btn-checkout:hover { background: var(--cobalt); }
+
+    /* ─── HERO ───────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      position: relative; overflow: hidden;
+      padding-top: 80px;
+      display: flex; align-items: center;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('HOMEPAGE.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: 0;
+    }
+
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        110deg,
+        rgba(13,43,78,.88) 0%,
+        rgba(13,43,78,.75) 40%,
+        rgba(26,74,138,.45) 70%,
+        rgba(58,123,213,.25) 100%
+      );
+    }
+
+    .hero-bg::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      z-index: 1;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    /* ─── NEW HERO BRAND TITLE ───────────────────────────── */
+    .hero-brand-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(5rem, 13vw, 10rem);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 0.88;
+      letter-spacing: -.02em;
+      margin-bottom: 0;
+      text-transform: uppercase;
+    }
+
+    .hero-brand-title .sips-line {
+      display: block;
+      color: var(--accent);
+      font-style: italic;
+    }
+
+    /* "Proudly Brewed in Benguet" — absolute bottom-right */
+    .hero-tagline-corner {
+      position: absolute;
+      bottom: 3rem;
+      right: 2.5rem;
+      z-index: 3;
+      text-align: right;
+    }
+
+    .hero-tagline-corner .tagline-inner {
+      display: inline-flex;
+      align-items: center;
+      gap: .75rem;
+    }
+
+    .hero-tagline-corner .tagline-bar {
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .hero-tagline-corner .tagline-words {
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.5);
+      line-height: 1.6;
+    }
+
+    .hero-tagline-corner .tagline-words strong {
+      display: block;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: .15em;
+    }
+
+    .hero-desc {
+      font-size: 1rem; color: rgba(255,255,255,.65);
+      max-width: 480px; line-height: 1.75;
+      margin-bottom: 2.4rem; margin-top: 2rem;
+    }
+
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .btn-hero-primary {
+      background: var(--accent); color: var(--navy);
+      border: none; padding: .8rem 2rem; border-radius: 30px;
+      font-weight: 600; font-size: .88rem; letter-spacing: .05em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-hero-primary:hover {
+      background: #d4b87a; transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(200,169,110,.35); color: var(--navy);
+    }
+
+    .btn-hero-ghost {
+      background: transparent; color: rgba(255,255,255,.8);
+      border: 1px solid rgba(255,255,255,.25); padding: .8rem 2rem;
+      border-radius: 30px; font-weight: 500; font-size: .88rem;
+      letter-spacing: .05em; text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-hero-ghost:hover {
+      background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.5); color: #fff;
+    }
+
+    .hero-stats {
+      margin-top: 3.5rem; display: flex; gap: 2.5rem;
+    }
+    .hero-stat-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem; font-weight: 600; color: var(--white); line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: .72rem; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.45); margin-top: .3rem;
+    }
+    .hero-stat-sep {
+      width: 1px; background: rgba(255,255,255,.15);
+      margin: 0 .5rem; align-self: stretch;
+    }
+
+    /* ─── SECTION SHARED ─────────────────────────────────── */
+    section { padding: 6rem 0; }
+
+    .section-eyebrow {
+      font-size: .72rem; font-weight: 500; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--sky);
+      margin-bottom: .7rem; display: block;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 300;
+      line-height: 1.18; color: var(--navy);
+    }
+    .section-title em { font-style: italic; color: var(--cobalt); }
+
+    /* ─── ORIGIN STORY ───────────────────────────────────── */
+    .origin { background: var(--mist); }
+
+    .origin-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 4rem; align-items: center;
+    }
+    @media(max-width:768px){ .origin-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+
+    .origin-map-card {
+      background: var(--white); border-radius: 24px; padding: 2.5rem;
+      box-shadow: 0 12px 48px rgba(13,43,78,.09);
+    }
+
+    .origin-region-list {
+      list-style: none; padding: 0; margin: 1.5rem 0 0;
+      display: flex; flex-direction: column; gap: .85rem;
+    }
+    .origin-region-list li {
+      display: flex; align-items: center; gap: 1rem; padding: .9rem 1rem;
+      border-radius: 14px; border: 1px solid var(--line);
+      transition: all .22s; cursor: default;
+    }
+    .origin-region-list li:hover {
+      background: var(--frost); border-color: rgba(58,123,213,.2); transform: translateX(4px);
+    }
+    .origin-icon-wrap {
+      width: 40px; height: 40px; border-radius: 12px; background: var(--frost);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: var(--cobalt); flex-shrink: 0;
+    }
+    .origin-region-name { font-weight: 600; font-size: .88rem; color: var(--navy); }
+    .origin-region-desc { font-size: .76rem; color: var(--sub); }
+    .origin-tag {
+      margin-left: auto; font-size: .66rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--cobalt);
+      background: var(--frost); padding: .25rem .6rem; border-radius: 10px;
+    }
+
+    .origin-body p { color: var(--sub); line-height: 1.8; font-size: .96rem; margin-bottom: 1.2rem; }
+
+    .value-pill {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .8rem; color: var(--navy); background: var(--white);
+      border: 1px solid var(--line); border-radius: 20px;
+      padding: .4rem .9rem; margin: .3rem; box-shadow: 0 2px 8px rgba(13,43,78,.04);
+    }
+    .value-pill i { color: var(--sky); }
+
+    /* ─── BREW PHILOSOPHY ────────────────────────────────── */
+    .brew-philosophy { background: var(--white); }
+
+    .brew-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem;
+    }
+    @media(max-width:992px){ .brew-grid { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:576px){ .brew-grid { grid-template-columns: 1fr; } }
+
+    .brew-card {
+      background: var(--mist); border-radius: 22px; padding: 2rem 1.8rem;
+      border: 1px solid var(--line); transition: all .25s;
+      position: relative; overflow: hidden;
+    }
+    .brew-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--cobalt), var(--sky));
+      transform: scaleX(0); transform-origin: left; transition: transform .3s;
+    }
+    .brew-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(13,43,78,.09); }
+    .brew-card:hover::after { transform: scaleX(1); }
+
+    .brew-card-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--cobalt), var(--sky));
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; color: var(--white); margin-bottom: 1.3rem;
+      box-shadow: 0 6px 16px rgba(26,74,138,.25);
+    }
+    .brew-card h4 { font-size: 1.25rem; font-weight: 600; color: var(--navy); margin-bottom: .6rem; }
+    .brew-card p  { font-size: .88rem; color: var(--sub); line-height: 1.75; margin: 0; }
+    .brew-card-number {
+      position: absolute; top: 1.5rem; right: 1.8rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3rem; font-weight: 300; color: rgba(13,43,78,.05); line-height: 1;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    .site-footer { background: #08192e; color: rgba(255,255,255,.5); padding: 4rem 0 2rem; }
+
+    .footer-brand { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
+    .footer-brand img { height: 40px; }
+    .footer-logo-fallback {
+      height: 40px; width: 40px; background: var(--cobalt); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.1rem;
+    }
+    .footer-tagline { font-size: .86rem; line-height: 1.7; max-width: 260px; }
+    .footer-socials { display: flex; gap: .6rem; margin-top: 1.2rem; }
+    .footer-social-btn {
+      width: 36px; height: 36px; background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.4); font-size: .9rem;
+      transition: all .2s; text-decoration: none;
+    }
+    .footer-social-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.8); }
+
+    .footer-col-title {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 600; color: rgba(255,255,255,.25); margin-bottom: 1.1rem;
+    }
+    .footer-links { list-style: none; padding: 0; margin: 0; }
+    .footer-links li + li { margin-top: .55rem; }
+    .footer-links a {
+      font-size: .86rem; color: rgba(255,255,255,.45); text-decoration: none;
+      transition: color .18s; display: flex; align-items: center; gap: .4rem;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,.8); }
+    .footer-contact-item { display: flex; align-items: flex-start; gap: .7rem; font-size: .86rem; margin-bottom: .75rem; }
+    .footer-contact-item i { color: var(--accent); font-size: .9rem; margin-top: .15rem; }
+    .footer-divider {
+      border-top: 1px solid rgba(255,255,255,.07); margin-top: 3rem; padding-top: 1.5rem;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+      font-size: .78rem; color: rgba(255,255,255,.25);
+    }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .32s; }
+    .reveal-delay-4 { transition-delay: .44s; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ════════════════════════════ -->
+<nav class="summit-nav">
+  <div class="navbar-inner">
+    <a href="index.php" class="brand-logo">
+      <img src="Summit_Sips.png" alt="Summit Sips"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="logo-fallback" style="display:none;"><i class="bi bi-cup-hot-fill"></i></div>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.php" class="active">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="menu.html">Menu</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+
+    <button class="sip-btn" id="sipBtn" onclick="toggleCart()">
+      <i class="bi bi-cup-hot"></i>
+      Sip Now
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ CART PANEL ════════════════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h5><i class="bi bi-bag me-2" style="font-size:1rem;color:var(--cobalt)"></i>Your Order</h5>
+    <button class="cart-close" onclick="toggleCart()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty" id="cartEmpty">
+      <i class="bi bi-cup"></i>
+      <strong style="color:var(--sub);font-size:.92rem;">No items yet</strong>
+      <span style="font-size:.8rem;">Explore our menu and add your favorites.</span>
+    </div>
+    <div id="cartItems"></div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">₱0.00</span>
+    </div>
+    <button class="btn-checkout">
+      <i class="bi bi-bag-check me-2"></i>Place Order
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════ HERO ══════════════════════════════ -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col-12 hero-content">
+
+        <!-- Brand name — large display -->
+        <h1 class="hero-brand-title">
+          SUMMIT<br>
+          <span class="sips-line">SIPS</span>
+        </h1>
+
+        <p class="hero-desc">
+          From Benguet highlands to Sagada hillsides — Summit Sips sources
+          the finest Benguet-grown beans and leaves, crafted into cups
+          that carry the soul of our mountains.
+        </p>
+
+        <div class="hero-actions">
+          <a href="menu.html" class="btn-hero-primary">
+            <i class="bi bi-grid-3x3-gap"></i> Explore Menu
+          </a>
+          <a href="about.html" class="btn-hero-ghost">
+            <i class="bi bi-play-circle"></i> Our Story
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-val">10+</div>
+            <div class="hero-stat-label">Local Origins</div>
+          </div>
+          <div class="hero-stat-sep"></div>
+          <div>
+            <div class="hero-stat-val">100%</div>
+            <div class="hero-stat-label">Benguet Grown</div>
+          </div>
+          <div class="hero-stat-sep"></div>
+          <div>
+            <div class="hero-stat-val">4</div>
+            <div class="hero-stat-label">Brew Methods</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- "Proudly Brewed in Benguet" — bottom right corner -->
+  <div class="hero-tagline-corner">
+    <div class="tagline-inner">
+      <div class="tagline-bar"></div>
+      <div class="tagline-words">
+        Proudly Brewed in
+        <strong>Benguet</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ S1 — ORIGIN STORY ═════════════════ -->
+<section class="origin" id="about">
+  <div class="container">
+    <div class="origin-grid">
+
+      <div class="origin-visual reveal">
+        <div class="origin-map-card">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-map" style="color:var(--cobalt);font-size:1.1rem;"></i>
+            <strong style="color:var(--navy);font-size:.9rem;">Our Sources</strong>
+          </div>
+          <p style="font-size:.78rem;color:var(--sub);margin:0 0 .2rem;">Proudly sourced from the highlands of the Cordillera Administrative Region.</p>
+          <ul class="origin-region-list">
+            <li>
+              <div class="origin-icon-wrap"><i class="bi bi-cup-hot"></i></div>
+              <div>
+                <div class="origin-region-name">Benguet, CAR</div>
+                <div class="origin-region-desc">Arabica beans, 1,500 m elevation</div>
+              </div>
+              <span class="origin-tag">Coffee</span>
+            </li>
+            <li>
+              <div class="origin-icon-wrap"><i class="bi bi-cup-hot"></i></div>
+              <div>
+                <div class="origin-region-name">Benguet, CAR</div>
+                <div class="origin-region-desc">Highland mountain tea leaves</div>
+              </div>
+              <span class="origin-tag">Tea</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="origin-body reveal reveal-delay-2">
+        <span class="section-eyebrow"><i class="bi bi-pin-map me-1"></i> Roots as deep as the mountains we climb.</span>
+        <h2 class="section-title mb-3">
+          It's only <em>Benguet, CAR</em> — Coffee &amp; Tea.
+        </h2>
+        <p>
+          Summit Sips is more than a café — it's a movement to celebrate BENGUET agriculture,
+          uplift mountain communities, and bring world-class specialty coffee and tea to your hands.
+        </p>
+        <p>
+          Every farm partner we work with shares our belief in sustainable, shade-grown
+          cultivation — preserving the biodiversity that makes the Benguet highlands so
+          singular. No shortcuts, no middlemen, just direct relationships with the
+          growers who make this possible.
+        </p>
+        <div class="mt-3">
+          <span class="value-pill"><i class="bi bi-recycle"></i> Sustainable Farming</span>
+          <span class="value-pill"><i class="bi bi-handshake"></i> Direct Trade</span>
+          <span class="value-pill"><i class="bi bi-shield-check"></i> No Artificial Additives</span>
+          <span class="value-pill"><i class="bi bi-people"></i> Community-Owned Farms</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ S2 — BREW PHILOSOPHY ══════════════ -->
+<section class="brew-philosophy">
+  <div class="container">
+    <div class="text-center mb-5 reveal">
+      <span class="section-eyebrow"><i class="bi bi-gear me-1"></i> Craft &amp; Method</span>
+      <h2 class="section-title">How we brew <em>differently.</em></h2>
+      <p class="mt-2" style="color:var(--sub);max-width:520px;margin:auto;font-size:.94rem;">
+        Great ingredients deserve intentional technique. Every cup at Summit Sips
+        follows a deliberate process built on respect for the source.
+      </p>
+    </div>
+
+    <div class="brew-grid">
+      <div class="brew-card reveal reveal-delay-1">
+        <div class="brew-card-number">01</div>
+        <div class="brew-card-icon"><i class="bi bi-thermometer-sun"></i></div>
+        <h4>Precision Temperature</h4>
+        <p>We dial water temperature to within 1°C of ideal for each origin — no guesswork, just science that honors the bean.</p>
+      </div>
+      <div class="brew-card reveal reveal-delay-2">
+        <div class="brew-card-number">02</div>
+        <div class="brew-card-icon"><i class="bi bi-hourglass-split"></i></div>
+        <h4>Timed Extraction</h4>
+        <p>Bloom, pour, and pull — every stage is timed to extract sweetness without bitterness from our Benguet-grown lots.</p>
+      </div>
+      <div class="brew-card reveal reveal-delay-3">
+        <div class="brew-card-number">03</div>
+        <div class="brew-card-icon"><i class="bi bi-stars"></i></div>
+        <h4>Single-Origin Focus</h4>
+        <p>No blending to hide flaws. We celebrate the distinct terroir of each region — earthy Barako, floral Benguet, grassy Sagada tea.</p>
+      </div>
+      <div class="brew-card reveal reveal-delay-1">
+        <div class="brew-card-number">04</div>
+        <div class="brew-card-icon"><i class="bi bi-phone"></i></div>
+        <h4>Mobile-First Service</h4>
+        <p>Order ahead on your phone, skip the queue, and collect your cup exactly when it's ready. Convenience meets craft.</p>
+      </div>
+      <div class="brew-card reveal reveal-delay-2">
+        <div class="brew-card-number">05</div>
+        <div class="brew-card-icon"><i class="bi bi-graph-up-arrow"></i></div>
+        <h4>Traceability QR</h4>
+        <p>Scan the tag on your cup to see the exact farm, harvest date, and elevation your drink came from. Full transparency.</p>
+      </div>
+      <div class="brew-card reveal reveal-delay-3">
+        <div class="brew-card-number">06</div>
+        <div class="brew-card-icon"><i class="bi bi-heart-pulse"></i></div>
+        <h4>Wellness Pairings</h4>
+        <p>Each beverage on our menu includes a tasting profile and wellness note — so you sip with intention, not just habit.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+
+      <div class="col-lg-4">
+        <div class="footer-brand">
+          <img src="Summit_Sips.png" alt="Summit Sips"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="footer-logo-fallback" style="display:none;"><i class="bi bi-cup-hot-fill"></i></div>
+        </div>
+        <p class="footer-tagline">
+          Benguet-grown coffee &amp; tea, sourced with intention and brewed with precision. Every sip connects you to our highlands.
+        </p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/share/1Aw8jjiLkH/?mibextid=wwXIfr" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com/summitsips_/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-tiktok"></i></a>
+        </div>
+      </div>
+
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Navigate</div>
+        <ul class="footer-links">
+          <li><a href="index.php"><i class="bi bi-house"></i> Home</a></li>
+          <li><a href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+          <li><a href="menu.html"><i class="bi bi-grid"></i> Menu</a></li>
+          <li><a href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Find Us</div>
+        <ul class="footer-links">
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Irisan Eco Park</a></li>
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Baguio Night Market</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="footer-col-title">Get in Touch</div>
+        <div class="footer-contact-item">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span>Irisan Eco Park, Baguio City — Mon–Sun, 10:00 AM – 5:00 PM</span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span>Baguio Night Market — Mon–Fri, 9:00 PM – 1:00 AM</span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="bi bi-tiktok"></i>
+          <span><a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" style="color:inherit;">@summit.sips0</a></span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="bi bi-facebook"></i>
+          <span><a href="https://www.facebook.com/share/1Aw8jjiLkH/?mibextid=wwXIfr" target="_blank" rel="noopener" style="color:inherit;">Summit Sips</a></span>
+        </div>
+        <div class="footer-contact-item">
+          <i class="bi bi-instagram"></i>
+          <span><a href="https://www.instagram.com/summitsips_/" target="_blank" rel="noopener" style="color:inherit;">@summitsips_</a></span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-divider">
+      <span>&copy; <?php echo date('Y'); ?> Summit Sips. All rights reserved.</span>
+      <span>Brewed with <i class="bi bi-heart-fill" style="color:var(--accent);font-size:.7rem;"></i> in the Benguets</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const cart = [];
+  let cartOpen = false;
+
+  function toggleCart() {
+    cartOpen = !cartOpen;
+    document.getElementById('cartPanel').classList.toggle('open', cartOpen);
+    document.getElementById('cartOverlay').classList.toggle('open', cartOpen);
+    document.body.style.overflow = cartOpen ? 'hidden' : '';
+  }
+
+  function addToCart(name, price, icon) {
+    const existing = cart.find(i => i.name === name);
+    if (existing) { existing.qty++; }
+    else { cart.push({ name, price, icon, qty: 1 }); }
+    renderCart();
+    if (!cartOpen) toggleCart();
+  }
+
+  function renderCart() {
+    const badge = document.getElementById('cartBadge');
+    const items = document.getElementById('cartItems');
+    const empty = document.getElementById('cartEmpty');
+    const total = document.getElementById('cartTotal');
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    const sum   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    badge.textContent = count;
+    badge.classList.toggle('visible', count > 0);
+    empty.style.display = cart.length ? 'none' : 'flex';
+    items.innerHTML = '';
+    cart.forEach(item => {
+      items.innerHTML += `
+        <div class="cart-item">
+          <div class="cart-item-icon"><i class="bi bi-${item.icon}"></i></div>
+          <div class="cart-item-info">
+            <strong>${item.name}</strong>
+            <span>Qty: ${item.qty}</span>
+          </div>
+          <div class="cart-item-price">₱${(item.price * item.qty).toFixed(2)}</div>
+        </div>`;
+    });
+    total.textContent = `₱${sum.toFixed(2)}`;
+  }
+
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

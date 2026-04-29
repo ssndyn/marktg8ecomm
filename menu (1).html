@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Menu — Summit Sips · Craft Coffee & Tea</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --navy:     #0d2b4e;
+      --cobalt:   #1a4a8a;
+      --sky:      #3a7bd5;
+      --frost:    #e8f1fc;
+      --white:    #ffffff;
+      --mist:     #f4f8ff;
+      --text:     #1c2b3a;
+      --sub:      #5a7290;
+      --accent:   #c8a96e;
+      --line:     rgba(13,43,78,.10);
+      --success:  #2d9e6b;
+      --error:    #d94f4f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      overflow-x: hidden;
+    }
+
+    h1,h2,h3,h4,h5 { font-family: 'Cormorant Garamond', serif; }
+
+    /* ─── NAVBAR ─────────────────────────────────────────── */
+    .summit-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .summit-nav .navbar-inner {
+      max-width: 1280px; margin: 0 auto;
+      padding: .85rem 1.5rem;
+      display: flex; align-items: center; gap: 2rem;
+    }
+    .summit-nav .brand-logo img { height: 46px; width: auto; object-fit: contain; }
+    .logo-fallback {
+      height: 46px; width: 46px; background: var(--navy); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 1.3rem;
+    }
+    .summit-nav .nav-links {
+      display: flex; gap: 0; list-style: none; margin: 0; padding: 0; flex: 1;
+    }
+    .summit-nav .nav-links a {
+      font-family: 'DM Sans', sans-serif; font-size: .82rem; font-weight: 500;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--sub);
+      text-decoration: none; padding: .4rem 1.1rem; border-radius: 20px; transition: all .22s;
+    }
+    .summit-nav .nav-links a:hover,
+    .summit-nav .nav-links a.active { color: var(--navy); background: var(--frost); }
+    .sip-btn {
+      position: relative; background: var(--navy); color: var(--white) !important;
+      border: none; padding: .58rem 1.3rem .58rem 1.1rem !important;
+      border-radius: 30px !important; font-size: .78rem !important;
+      letter-spacing: .07em !important; font-weight: 600 !important;
+      display: flex !important; align-items: center; gap: .4rem;
+      white-space: nowrap; transition: background .22s, transform .18s !important;
+    }
+    .sip-btn:hover { background: var(--cobalt) !important; transform: translateY(-1px); }
+    .cart-badge {
+      position: absolute; top: -6px; right: -6px;
+      background: var(--accent); color: var(--navy); font-size: .6rem; font-weight: 700;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(.5); transition: all .2s;
+    }
+    .cart-badge.visible { opacity: 1; transform: scale(1); }
+    .nav-toggle { display: none; background: none; border: none; font-size: 1.4rem; color: var(--navy); cursor: pointer; }
+    @media (max-width: 768px) {
+      .nav-toggle { display: flex; align-items: center; }
+      .nav-links   { display: none !important; }
+      .nav-links.open { display: flex !important; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--white); padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); gap: .3rem; }
+    }
+
+    /* ─── CART PANEL ─────────────────────────────────────── */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(13,43,78,.35);
+      z-index: 1100; opacity: 0; pointer-events: none; transition: opacity .28s;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+    .cart-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(400px, 100vw); background: var(--white); z-index: 1200;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+      box-shadow: -8px 0 40px rgba(13,43,78,.12);
+    }
+    .cart-panel.open { transform: translateX(0); }
+    .cart-header {
+      padding: 1.4rem 1.5rem; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cart-header h5 { font-size: 1.3rem; font-weight: 600; color: var(--navy); margin: 0; }
+    .cart-close {
+      background: none; border: none; font-size: 1.2rem; color: var(--sub); cursor: pointer;
+      width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background .18s;
+    }
+    .cart-close:hover { background: var(--frost); }
+    .cart-body { flex: 1; overflow-y: auto; padding: 1.2rem 1.5rem; }
+    .cart-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; color: var(--sub); gap: .6rem; text-align: center;
+    }
+    .cart-empty i { font-size: 2.5rem; color: #cdd8e8; }
+    .cart-item {
+      display: flex; gap: 1rem; padding: .9rem 0;
+      border-bottom: 1px solid var(--line); align-items: center;
+    }
+    .cart-item-icon {
+      width: 46px; height: 46px; background: var(--frost); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--cobalt); font-size: 1.2rem; flex-shrink: 0;
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-info strong { font-size: .88rem; color: var(--navy); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cart-item-info span { font-size: .78rem; color: var(--sub); }
+    .cart-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: .3rem; }
+    .cart-item-price { font-size: .9rem; font-weight: 600; color: var(--cobalt); }
+    .cart-qty-row { display: flex; align-items: center; gap: .4rem; }
+    .cart-qty-btn {
+      width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line);
+      background: var(--mist); color: var(--navy); font-size: .8rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .18s; font-weight: 600; line-height: 1;
+    }
+    .cart-qty-btn:hover { background: var(--frost); border-color: rgba(58,123,213,.3); }
+    .cart-qty-num { font-size: .82rem; font-weight: 600; color: var(--navy); min-width: 16px; text-align: center; }
+    .cart-footer { padding: 1.2rem 1.5rem; border-top: 1px solid var(--line); }
+    .cart-total {
+      display: flex; justify-content: space-between;
+      font-weight: 600; font-size: .95rem; color: var(--navy); margin-bottom: .4rem;
+    }
+    .cart-count-label { font-size: .78rem; color: var(--sub); margin-bottom: 1rem; }
+    .btn-checkout {
+      display: block; width: 100%; background: var(--navy); color: var(--white);
+      border: none; padding: .9rem; border-radius: 30px;
+      font-size: .85rem; font-weight: 600; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer; transition: background .2s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-checkout:hover { background: var(--cobalt); }
+    .btn-clear-cart {
+      display: block; width: 100%; background: transparent; color: var(--sub);
+      border: 1px solid var(--line); padding: .6rem; border-radius: 30px;
+      font-size: .78rem; cursor: pointer; transition: all .18s; margin-top: .6rem;
+      font-family: 'DM Sans', sans-serif; letter-spacing: .04em;
+    }
+    .btn-clear-cart:hover { background: var(--mist); color: var(--error); border-color: rgba(217,79,79,.2); }
+
+    /* ─── PAGE HERO ──────────────────────────────────────── */
+    .page-hero {
+      min-height: 48vh;
+      background: linear-gradient(155deg, #0d2b4e 0%, #1a4a8a 55%, #3a7bd5 100%);
+      display: flex; align-items: flex-end;
+      position: relative; overflow: hidden;
+      padding-top: 80px; padding-bottom: 4rem;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 65% 55% at 85% 25%, rgba(58,123,213,.2) 0%, transparent 65%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23ffffff' fill-opacity='0.03'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-ring {
+      position: absolute; right: -8vw; top: 50%; transform: translateY(-50%);
+      width: 50vw; height: 50vw; max-width: 600px; max-height: 600px;
+      border-radius: 50%; border: 1px solid rgba(255,255,255,.07); pointer-events: none;
+    }
+    .hero-ring::before {
+      content: ''; position: absolute; inset: 14%;
+      border-radius: 50%; border: 1px solid rgba(255,255,255,.05);
+    }
+    .page-hero-content { position: relative; z-index: 2; }
+    .breadcrumb-trail {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .76rem; color: rgba(255,255,255,.4);
+      letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1.4rem;
+    }
+    .breadcrumb-trail a { color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .breadcrumb-trail a:hover { color: var(--accent); }
+    .breadcrumb-trail .bc-sep { color: rgba(255,255,255,.2); }
+    .breadcrumb-trail .bc-cur { color: var(--accent); }
+    .page-hero-eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .72rem; font-weight: 500; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--accent);
+      background: rgba(200,169,110,.12); border: 1px solid rgba(200,169,110,.25);
+      padding: .38rem .9rem; border-radius: 20px; margin-bottom: 1.4rem;
+    }
+    .page-hero h1 {
+      font-size: clamp(2.6rem, 5.5vw, 4.2rem); font-weight: 300;
+      color: var(--white); line-height: 1.1; margin-bottom: 1rem;
+    }
+    .page-hero h1 em { font-style: italic; color: var(--accent); }
+    .page-hero-desc {
+      font-size: 1rem; color: rgba(255,255,255,.6); max-width: 500px; line-height: 1.75;
+    }
+
+    /* ─── MENU SECTION ───────────────────────────────────── */
+    .menu-section { padding: 5rem 0 6rem; background: var(--white); }
+
+    /* Category Filter Tabs */
+    .cat-tabs {
+      display: flex; gap: .6rem; flex-wrap: wrap;
+      margin-bottom: 3.5rem;
+    }
+    .cat-tab {
+      display: inline-flex; align-items: center; gap: .45rem;
+      font-size: .78rem; font-weight: 500; letter-spacing: .07em;
+      text-transform: uppercase; padding: .5rem 1.2rem;
+      border-radius: 30px; border: 1.5px solid var(--line);
+      background: var(--mist); color: var(--sub);
+      cursor: pointer; transition: all .22s; user-select: none;
+    }
+    .cat-tab:hover { border-color: rgba(58,123,213,.3); color: var(--cobalt); background: var(--frost); }
+    .cat-tab.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .cat-tab i { font-size: .85rem; }
+
+    /* Category Section */
+    .menu-category { margin-bottom: 4rem; }
+    .menu-category:last-child { margin-bottom: 0; }
+
+    .cat-header {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.8rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .cat-icon-wrap {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--cobalt), var(--sky));
+      border-radius: 14px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--white);
+      box-shadow: 0 4px 14px rgba(26,74,138,.22);
+      flex-shrink: 0;
+    }
+    .cat-header-text {}
+    .cat-label {
+      font-size: .68rem; font-weight: 600; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--sky); margin-bottom: .15rem;
+    }
+    .cat-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 600; color: var(--navy); line-height: 1;
+    }
+    .cat-title em { font-style: italic; color: var(--cobalt); }
+    .cat-count {
+      margin-left: auto; font-size: .72rem; color: var(--sub);
+      background: var(--mist); border: 1px solid var(--line);
+      border-radius: 20px; padding: .25rem .75rem;
+    }
+
+    /* Menu Items Grid */
+    .menu-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.4rem;
+    }
+
+    .menu-card {
+      background: var(--mist); border: 1.5px solid var(--line);
+      border-radius: 20px; padding: 1.5rem;
+      transition: all .25s; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: .9rem;
+    }
+    .menu-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px; background: linear-gradient(90deg, var(--cobalt), var(--sky));
+      transform: scaleX(0); transform-origin: left; transition: transform .3s;
+    }
+    .menu-card:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(13,43,78,.09); background: var(--white); }
+    .menu-card:hover::after { transform: scaleX(1); }
+
+    .menu-card-top { display: flex; align-items: flex-start; gap: .9rem; }
+    .menu-card-icon {
+      width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
+    .menu-card-icon.iced   { background: linear-gradient(135deg, #e8f4fe, #c3ddf8); color: var(--cobalt); }
+    .menu-card-icon.tea    { background: linear-gradient(135deg, #e8fef4, #bdf0d5); color: #1a7a4e; }
+    .menu-card-icon.hot    { background: linear-gradient(135deg, #fff4e8, #fdd9a8); color: #a05a10; }
+    .menu-card-icon.hottea { background: linear-gradient(135deg, #fef0e8, #f7cdb0); color: #8a3a10; }
+
+    .menu-card-meta { flex: 1; min-width: 0; }
+    .menu-card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 600; color: var(--navy);
+      line-height: 1.2; margin-bottom: .25rem;
+    }
+    .menu-card-origin {
+      font-size: .72rem; color: var(--sky); display: flex; align-items: center;
+      gap: .25rem; letter-spacing: .04em;
+    }
+    .menu-card-desc {
+      font-size: .84rem; color: var(--sub); line-height: 1.7; margin: 0;
+    }
+
+    .menu-card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .menu-card-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 600; color: var(--navy);
+    }
+    .menu-card-price sup { font-size: .7em; vertical-align: super; font-family: 'DM Sans', sans-serif; font-weight: 400; }
+
+    .btn-add {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--navy); color: var(--white);
+      border: none; padding: .52rem 1.15rem;
+      border-radius: 30px; font-size: .78rem; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      cursor: pointer; transition: all .22s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .btn-add:hover { background: var(--cobalt); transform: translateY(-1px); }
+    .btn-add.added {
+      background: var(--success); pointer-events: none;
+    }
+    .btn-add.added::after { content: ' ✓'; }
+
+    /* Tag badges on cards */
+    .menu-tag {
+      position: absolute; top: 1rem; right: 1rem;
+      font-size: .6rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; padding: .22rem .55rem; border-radius: 8px;
+    }
+    .menu-tag.popular { background: rgba(200,169,110,.15); color: var(--accent); }
+    .menu-tag.new     { background: rgba(45,158,107,.15);  color: var(--success); }
+
+    /* ─── TOAST NOTIFICATION ─────────────────────────────── */
+    .toast-notif {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--navy); color: var(--white);
+      padding: .7rem 1.4rem; border-radius: 30px;
+      font-size: .82rem; font-weight: 500;
+      display: flex; align-items: center; gap: .5rem;
+      z-index: 3000; opacity: 0;
+      transition: opacity .25s, transform .25s;
+      box-shadow: 0 8px 24px rgba(13,43,78,.25);
+      pointer-events: none; white-space: nowrap;
+    }
+    .toast-notif.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-notif i { color: var(--accent); }
+
+    /* ─── CHECKOUT MODAL ─────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(13,43,78,.55); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; pointer-events: none; transition: opacity .35s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal-box {
+      background: var(--white); border-radius: 28px;
+      padding: 2.8rem 2.6rem; max-width: 500px; width: 100%;
+      box-shadow: 0 30px 80px rgba(13,43,78,.25);
+      transform: translateY(30px) scale(.96);
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .35s;
+      opacity: 0; position: relative; max-height: 90vh; overflow-y: auto;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0) scale(1); opacity: 1; }
+
+    .modal-close-btn {
+      position: absolute; top: 1.2rem; right: 1.2rem;
+      background: var(--mist); border: 1px solid var(--line);
+      border-radius: 50%; width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--sub); font-size: .9rem; cursor: pointer; transition: all .18s;
+    }
+    .modal-close-btn:hover { background: var(--frost); color: var(--navy); }
+
+    /* Checkout Form Styles */
+    .checkout-header { margin-bottom: 1.8rem; }
+    .checkout-header h3 { font-size: 1.8rem; font-weight: 600; color: var(--navy); margin-bottom: .3rem; }
+    .checkout-header p { font-size: .86rem; color: var(--sub); margin: 0; }
+
+    .order-summary {
+      background: var(--mist); border: 1px solid var(--line);
+      border-radius: 16px; padding: 1rem 1.2rem; margin-bottom: 1.4rem;
+    }
+    .order-summary-title {
+      font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--sub); margin-bottom: .8rem; display: flex; align-items: center; gap: .4rem;
+    }
+    .order-summary-item {
+      display: flex; justify-content: space-between;
+      font-size: .84rem; padding: .3rem 0;
+      border-bottom: 1px solid var(--line); color: var(--text);
+    }
+    .order-summary-item:last-child { border-bottom: none; }
+    .order-summary-total {
+      display: flex; justify-content: space-between;
+      font-weight: 700; font-size: .92rem; color: var(--navy);
+      padding-top: .7rem; margin-top: .3rem;
+      border-top: 1.5px solid var(--line);
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block; font-size: .75rem; font-weight: 500;
+      letter-spacing: .07em; text-transform: uppercase;
+      color: var(--navy); margin-bottom: .4rem;
+    }
+    .form-group label span.req { color: var(--accent); margin-left: .2rem; }
+    .form-control-custom {
+      width: 100%; background: var(--mist); border: 1.5px solid var(--line);
+      border-radius: 12px; padding: .72rem 1rem;
+      font-family: 'DM Sans', sans-serif; font-size: .88rem; color: var(--text);
+      outline: none; transition: border-color .22s, box-shadow .22s, background .22s;
+      appearance: none;
+    }
+    .form-control-custom::placeholder { color: rgba(90,114,144,.45); }
+    .form-control-custom:focus {
+      border-color: var(--sky); background: var(--white);
+      box-shadow: 0 0 0 3px rgba(58,123,213,.12);
+    }
+    .form-row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media(max-width: 480px) { .form-row-grid { grid-template-columns: 1fr; } }
+
+    /* Delivery toggle */
+    .delivery-toggle { display: flex; gap: .6rem; margin-bottom: 1rem; }
+    .delivery-opt {
+      flex: 1; padding: .65rem .9rem; border-radius: 12px;
+      border: 1.5px solid var(--line); background: var(--mist);
+      text-align: center; cursor: pointer; transition: all .2s;
+      font-size: .82rem; color: var(--sub); font-weight: 500;
+      display: flex; align-items: center; justify-content: center; gap: .4rem;
+    }
+    .delivery-opt.active { background: var(--cobalt); color: var(--white); border-color: var(--cobalt); }
+
+    select.form-control-custom {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a7290' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 1rem center;
+      padding-right: 2.5rem; cursor: pointer;
+    }
+
+    .btn-place-order {
+      width: 100%; background: var(--navy); color: var(--white);
+      border: none; padding: .95rem 2rem; border-radius: 30px;
+      font-family: 'DM Sans', sans-serif; font-size: .88rem; font-weight: 600;
+      letter-spacing: .07em; text-transform: uppercase; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .6rem;
+      transition: all .25s; margin-top: 1.4rem; position: relative; overflow: hidden;
+    }
+    .btn-place-order:hover { background: var(--cobalt); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(13,43,78,.2); }
+    .btn-place-order:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+    .btn-place-order .spinner {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── SUCCESS MODAL ──────────────────────────────────── */
+    .success-overlay {
+      position: fixed; inset: 0; z-index: 2100;
+      background: rgba(13,43,78,.6); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; pointer-events: none; transition: opacity .35s;
+    }
+    .success-overlay.open { opacity: 1; pointer-events: all; }
+
+    .success-box {
+      background: var(--white); border-radius: 28px;
+      padding: 0; max-width: 520px; width: 100%;
+      box-shadow: 0 30px 80px rgba(13,43,78,.3);
+      transform: translateY(40px) scale(.94);
+      transition: transform .45s cubic-bezier(.34,1.56,.64,1), opacity .35s;
+      opacity: 0; overflow: hidden; position: relative;
+    }
+    .success-overlay.open .success-box { transform: translateY(0) scale(1); opacity: 1; }
+
+    .success-top {
+      background: linear-gradient(135deg, #0d2b4e, #1a4a8a);
+      padding: 2.5rem 2.5rem 3.5rem;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .success-top::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Ccircle cx='30' cy='30' r='2' fill='%23ffffff' fill-opacity='0.04'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .success-ring {
+      position: absolute; right: -60px; top: -60px;
+      width: 220px; height: 220px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.08); pointer-events: none;
+    }
+    .success-ring::before {
+      content: ''; position: absolute; inset: 20%;
+      border-radius: 50%; border: 1px solid rgba(255,255,255,.06);
+    }
+    .success-icon-wrap {
+      position: relative; z-index: 2;
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #1e6e4b, var(--success));
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.4rem;
+      box-shadow: 0 8px 28px rgba(45,158,107,.35);
+      animation: popIn .55s cubic-bezier(.34,1.56,.64,1) .2s both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .success-icon-wrap i { font-size: 2.2rem; color: var(--white); }
+    .success-top h2 {
+      position: relative; z-index: 2;
+      font-size: 2.2rem; font-weight: 300; color: var(--white); margin-bottom: .4rem;
+    }
+    .success-top h2 em { font-style: italic; color: var(--accent); }
+    .success-top p {
+      position: relative; z-index: 2;
+      font-size: .9rem; color: rgba(255,255,255,.6); margin: 0;
+    }
+
+    /* Scallop divider */
+    .success-scallop {
+      position: absolute; bottom: -1px; left: 0; right: 0; z-index: 3;
+      height: 30px; background: var(--white);
+      clip-path: ellipse(52% 100% at 50% 100%);
+    }
+
+    .success-body { padding: 1.5rem 2.5rem 2.5rem; }
+
+    .order-ref {
+      background: var(--mist); border: 1px solid var(--line);
+      border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 1.4rem;
+    }
+    .order-ref-row {
+      display: flex; align-items: center; gap: .6rem;
+      font-size: .84rem; color: var(--sub); padding: .3rem 0;
+    }
+    .order-ref-row:not(:last-child) { border-bottom: 1px solid var(--line); padding-bottom: .5rem; margin-bottom: .2rem; }
+    .order-ref-row i { color: var(--sky); font-size: .85rem; width: 16px; flex-shrink: 0; }
+    .order-ref-row strong { color: var(--navy); }
+
+    .ordered-items-title {
+      font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--sub); margin-bottom: .8rem; display: flex; align-items: center; gap: .4rem;
+    }
+    .ordered-item-pill {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: var(--frost); color: var(--cobalt);
+      border: 1px solid rgba(58,123,213,.15); border-radius: 10px;
+      padding: .3rem .7rem; font-size: .78rem; margin: .2rem;
+    }
+
+    .success-eta {
+      background: rgba(200,169,110,.08); border: 1px solid rgba(200,169,110,.2);
+      border-radius: 14px; padding: .9rem 1.2rem; margin: 1.2rem 0;
+      display: flex; align-items: center; gap: .8rem;
+    }
+    .success-eta-icon {
+      width: 42px; height: 42px; background: rgba(200,169,110,.15);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: var(--accent); flex-shrink: 0;
+    }
+    .success-eta-text strong { display: block; font-size: .9rem; color: var(--navy); }
+    .success-eta-text span { font-size: .8rem; color: var(--sub); }
+
+    .success-btn-row { display: flex; gap: .8rem; margin-top: 1.4rem; flex-wrap: wrap; }
+    .btn-success-primary {
+      flex: 1; background: var(--navy); color: var(--white);
+      border: none; padding: .78rem 1.5rem; border-radius: 30px;
+      font-weight: 600; font-size: .84rem; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: all .22s; text-decoration: none;
+    }
+    .btn-success-primary:hover { background: var(--cobalt); transform: translateY(-1px); color: var(--white); }
+    .btn-success-ghost {
+      flex: 1; background: transparent; color: var(--navy);
+      border: 1.5px solid var(--line); padding: .78rem 1.5rem; border-radius: 30px;
+      font-weight: 500; font-size: .84rem; letter-spacing: .06em;
+      text-transform: uppercase; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      transition: all .22s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-success-ghost:hover { background: var(--frost); border-color: rgba(58,123,213,.3); }
+
+    /* Confetti */
+    .confetti-dot {
+      position: absolute; border-radius: 50%;
+      animation: confettiFall 1.4s ease-out forwards; pointer-events: none;
+    }
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(100px) rotate(720deg) scale(.4); }
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────────── */
+    .site-footer { background: #08192e; color: rgba(255,255,255,.5); padding: 4rem 0 2rem; }
+    .footer-brand { display: flex; align-items: center; gap: .8rem; margin-bottom: 1rem; }
+    .footer-brand img { height: 40px; }
+    .footer-logo-fallback {
+      height: 40px; width: 40px; background: var(--cobalt); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.1rem;
+    }
+    .footer-tagline { font-size: .86rem; line-height: 1.7; max-width: 260px; }
+    .footer-socials { display: flex; gap: .6rem; margin-top: 1.2rem; }
+    .footer-social-btn {
+      width: 36px; height: 36px; background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,.4); font-size: .9rem; transition: all .2s; text-decoration: none;
+    }
+    .footer-social-btn:hover { background: rgba(255,255,255,.12); color: rgba(255,255,255,.8); }
+    .footer-col-title {
+      font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 600; color: rgba(255,255,255,.25); margin-bottom: 1.1rem;
+    }
+    .footer-links { list-style: none; padding: 0; margin: 0; }
+    .footer-links li + li { margin-top: .55rem; }
+    .footer-links a {
+      font-size: .86rem; color: rgba(255,255,255,.45);
+      text-decoration: none; transition: color .18s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .footer-links a:hover { color: rgba(255,255,255,.8); }
+    .footer-contact-item { display: flex; align-items: flex-start; gap: .7rem; font-size: .86rem; margin-bottom: .75rem; }
+    .footer-contact-item i { color: var(--accent); font-size: .9rem; margin-top: .15rem; }
+    .footer-divider {
+      border-top: 1px solid rgba(255,255,255,.07);
+      margin-top: 3rem; padding-top: 1.5rem;
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+      font-size: .78rem; color: rgba(255,255,255,.25);
+    }
+
+    /* ─── SCROLL REVEAL ──────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .32s; }
+
+    /* ─── SECTION EYEBROW ────────────────────────────────── */
+    .section-eyebrow {
+      font-size: .72rem; font-weight: 500; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--sky); margin-bottom: .7rem; display: block;
+    }
+    .section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; line-height: 1.18; color: var(--navy); }
+    .section-title em { font-style: italic; color: var(--cobalt); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAVBAR ════════════════════════════ -->
+<nav class="summit-nav">
+  <div class="navbar-inner">
+    <a href="index.html" class="brand-logo">
+      <img src="Summit_Sips.png" alt="Summit Sips"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+      <div class="logo-fallback" style="display:none;"><i class="bi bi-cup-hot-fill"></i></div>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="menu.html" class="active">Menu</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <button class="sip-btn" id="sipBtn" onclick="toggleCart()">
+      <i class="bi bi-cup-hot"></i>
+      Sip Now
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu">
+      <i class="bi bi-list"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- ═══════════════════ CART PANEL ════════════════════════ -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h5><i class="bi bi-bag me-2" style="font-size:1rem;color:var(--cobalt)"></i>Your Order</h5>
+    <button class="cart-close" onclick="toggleCart()"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty" id="cartEmpty">
+      <i class="bi bi-cup"></i>
+      <strong style="color:var(--sub);font-size:.92rem;">No items yet</strong>
+      <span style="font-size:.8rem;">Add your favorite brews below!</span>
+    </div>
+    <div id="cartItems"></div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total</span><span id="cartTotal">₱0.00</span></div>
+    <div class="cart-count-label" id="cartCountLabel"></div>
+    <button class="btn-checkout" onclick="openCheckout()">
+      <i class="bi bi-bag-check"></i> Proceed to Order
+    </button>
+    <button class="btn-clear-cart" onclick="clearCart()">
+      <i class="bi bi-trash3"></i> Clear cart
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════ PAGE HERO ═════════════════════════ -->
+<section class="page-hero">
+  <div class="hero-ring"></div>
+  <div class="container">
+    <div class="page-hero-content" style="max-width:600px;">
+      <div class="breadcrumb-trail">
+        <a href="index.html">Home</a>
+        <span class="bc-sep"><i class="bi bi-chevron-right" style="font-size:.65rem;"></i></span>
+        <span class="bc-cur">Menu</span>
+      </div>
+      <span class="page-hero-eyebrow">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+        Summit Sips Menu
+      </span>
+      <h1>
+        Crafted from<br>
+        <em>highland</em> roots,<br>
+        sipped with pride.
+      </h1>
+      <p class="page-hero-desc">
+        Every drink on this menu is made with 100% Benguet-grown ingredients —
+        from Benguet Arabica beans to wild Sagada tea leaves. Choose your brew and taste the highlands.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MENU BODY ═════════════════════════ -->
+<section class="menu-section">
+  <div class="container">
+
+    <!-- Category Filter -->
+    <div class="cat-tabs reveal" id="catTabs">
+      <button class="cat-tab active" data-cat="all" onclick="filterCat(this,'all')">
+        <i class="bi bi-grid"></i> All Drinks
+      </button>
+      <button class="cat-tab" data-cat="iced" onclick="filterCat(this,'iced')">
+        <i class="bi bi-snow3"></i> Iced Coffee
+      </button>
+      <button class="cat-tab" data-cat="tea" onclick="filterCat(this,'tea')">
+        <i class="bi bi-droplet"></i> Iced Tea
+      </button>
+      <button class="cat-tab" data-cat="hot" onclick="filterCat(this,'hot')">
+        <i class="bi bi-fire"></i> Hot Coffee
+      </button>
+      <button class="cat-tab" data-cat="hottea" onclick="filterCat(this,'hottea')">
+        <i class="bi bi-cup-hot"></i> Hot Tea
+      </button>
+    </div>
+
+    <!-- ══ ICED COFFEE ══ -->
+    <div class="menu-category reveal" id="cat-iced">
+      <div class="cat-header">
+        <div class="cat-icon-wrap"><i class="bi bi-snow3"></i></div>
+        <div class="cat-header-text">
+          <div class="cat-label">Cold Peaks</div>
+          <div class="cat-title">Iced <em>Coffee</em></div>
+        </div>
+        <span class="cat-count">4 drinks</span>
+      </div>
+      <div class="menu-grid">
+
+        <div class="menu-card">
+          <span class="menu-tag popular">Popular</span>
+          <div class="menu-card-top">
+            <div class="menu-card-icon iced"><i class="bi bi-cloud-fog2"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Cloud Foam Latte</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Arabica · Atok, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Smooth latte topped with velvety cloud foam, made with prized Arabica beans from the Atok highlands.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>180</div>
+            <button class="btn-add" onclick="addToCart('Cloud Foam Latte', 180, 'cloud-fog2', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon iced"><i class="bi bi-cup-straw"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Misty Mocha</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Beans · Kapangan, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Chocolate blended with rich coffee and milk, using single-origin beans sourced directly from Kapangan farms.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>175</div>
+            <button class="btn-add" onclick="addToCart('Misty Mocha', 175, 'cup-straw', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <span class="menu-tag new">New</span>
+          <div class="menu-card-top">
+            <div class="menu-card-icon iced"><i class="bi bi-flower1"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Strawberry Summit</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Beans · La Trinidad, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Fruity strawberry latte with smooth coffee, using locally-sourced beans from the strawberry capital of the Benguets.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>185</div>
+            <button class="btn-add" onclick="addToCart('Strawberry Summit', 185, 'flower1', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon iced"><i class="bi bi-tree"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Highland Hazelnut</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Beans · Tublay, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Nutty hazelnut latte with a creamy coffee base, crafted from Tublay's finest mountain-grown Arabica.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>175</div>
+            <button class="btn-add" onclick="addToCart('Highland Hazelnut', 175, 'tree', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ ICED TEA & REFRESHERS ══ -->
+    <div class="menu-category reveal reveal-delay-1" id="cat-tea">
+      <div class="cat-header">
+        <div class="cat-icon-wrap" style="background: linear-gradient(135deg,#1a7a4e,#2d9e6b);"><i class="bi bi-droplet-fill"></i></div>
+        <div class="cat-header-text">
+          <div class="cat-label">Sky Brews</div>
+          <div class="cat-title">Iced Tea & <em>Refreshers</em></div>
+        </div>
+        <span class="cat-count">3 drinks</span>
+      </div>
+      <div class="menu-grid">
+
+        <div class="menu-card">
+          <span class="menu-tag popular">Popular</span>
+          <div class="menu-card-top">
+            <div class="menu-card-icon tea"><i class="bi bi-brightness-alt-high"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Blue Sky Lemonade</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Dried Strawberry Leaves</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Fresh lemon refresher with a light citrus kick and dried strawberry leaves for a uniquely highland twist.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>130</div>
+            <button class="btn-add" onclick="addToCart('Blue Sky Lemonade', 130, 'brightness-alt-high', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon tea"><i class="bi bi-flower2"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Mountain Berry Iced Tea</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> La Trinidad Strawberry Farm</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Black tea mixed with fresh berries from La Trinidad Strawberry Farm — tart, vibrant, and unmistakably Baguio.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>150</div>
+            <button class="btn-add" onclick="addToCart('Mountain Berry Iced Tea', 150, 'flower2', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <span class="menu-tag new">New</span>
+          <div class="menu-card-top">
+            <div class="menu-card-icon tea"><i class="bi bi-sun"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Zenith Zest</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Calamansi · Sablan, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Calamansi and honey iced tea for a bright citrus boost, sourced directly from Sablan's calamansi orchards.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>140</div>
+            <button class="btn-add" onclick="addToCart('Zenith Zest', 140, 'sun', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ HOT COFFEE ══ -->
+    <div class="menu-category reveal reveal-delay-2" id="cat-hot">
+      <div class="cat-header">
+        <div class="cat-icon-wrap" style="background: linear-gradient(135deg,#a05a10,#c87a20);"><i class="bi bi-fire"></i></div>
+        <div class="cat-header-text">
+          <div class="cat-label">Morning Mist</div>
+          <div class="cat-title">Hot <em>Coffee</em></div>
+        </div>
+        <span class="cat-count">4 drinks</span>
+      </div>
+      <div class="menu-grid">
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon hot"><i class="bi bi-cup-fill"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Explorer's Black</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Beans · Itogon, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Bold, honest black coffee using single-origin beans from Itogon — earthy, full-bodied, and unapologetically Benguet.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>130</div>
+            <button class="btn-add" onclick="addToCart('Explorers Black', 130, 'cup-fill', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <span class="menu-tag popular">Popular</span>
+          <div class="menu-card-top">
+            <div class="menu-card-icon hot"><i class="bi bi-cloud-haze2"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Peak Cappuccino</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Arabica · Atok, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Smooth, perfectly balanced cappuccino made with our prized Arabica from Atok — silky microfoam, clean finish.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>150</div>
+            <button class="btn-add" onclick="addToCart('Peak Cappuccino', 150, 'cloud-haze2', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon hot"><i class="bi bi-cup-hot-fill"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Camp Latte</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Beans · Buguias, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Creamy, comforting latte using beans from the cool heights of Buguias — sweet, mellow, and deeply satisfying.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>150</div>
+            <button class="btn-add" onclick="addToCart('Camp Latte', 150, 'cup-hot-fill', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon hot"><i class="bi bi-droplet-fill"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Mountain White Flat</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Beans · Tublay, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Silky flat white with a ristretto base, using Tublay beans for a velvety, textured cup that lingers beautifully.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>160</div>
+            <button class="btn-add" onclick="addToCart('Mountain White Flat', 160, 'droplet-fill', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ HOT TEAS ══ -->
+    <div class="menu-category reveal reveal-delay-3" id="cat-hottea">
+      <div class="cat-header">
+        <div class="cat-icon-wrap" style="background: linear-gradient(135deg,#8a3a10,#c05a20);"><i class="bi bi-cup-hot"></i></div>
+        <div class="cat-header-text">
+          <div class="cat-label">The Cozy Canopy</div>
+          <div class="cat-title">Hot <em>Teas</em></div>
+        </div>
+        <span class="cat-count">3 drinks</span>
+      </div>
+      <div class="menu-grid">
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon hottea"><i class="bi bi-flower3"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Heritage Tea</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Lemongrass · Local Highlands</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Warm herbal honey blend with tuba lemongrass — a timeless Filipino brew that grounds you in the highlands.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>110</div>
+            <button class="btn-add" onclick="addToCart('Heritage Tea', 110, 'flower3', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <span class="menu-tag popular">Popular</span>
+          <div class="menu-card-top">
+            <div class="menu-card-icon hottea"><i class="bi bi-stars"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Elevation Chai</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Roselle Hibiscus · Local</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Made from native Roselle hibiscus flowers, sweetened with a local honey drizzle — floral, tart, and warming.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>120</div>
+            <button class="btn-add" onclick="addToCart('Elevation Chai', 120, 'stars', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+        <div class="menu-card">
+          <div class="menu-card-top">
+            <div class="menu-card-icon hottea"><i class="bi bi-lightning-fill"></i></div>
+            <div class="menu-card-meta">
+              <div class="menu-card-name">Mist Ginger Tea</div>
+              <div class="menu-card-origin"><i class="bi bi-geo-alt-fill"></i> Ginger · Sablan, Benguet</div>
+            </div>
+          </div>
+          <p class="menu-card-desc">Crushed ginger from Sablan with lemon and honey — bold, spicy, and deeply rooted in Filipino folk wellness tradition.</p>
+          <div class="menu-card-footer">
+            <div class="menu-card-price"><sup>₱</sup>115</div>
+            <button class="btn-add" onclick="addToCart('Mist Ginger Tea', 115, 'lightning-fill', this)">
+              <i class="bi bi-plus"></i> Add
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ════════════════════════════ -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="footer-brand">
+          <img src="Summit_Sips.png" alt="Summit Sips"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+          <div class="footer-logo-fallback" style="display:none;"><i class="bi bi-cup-hot-fill"></i></div>
+        </div>
+        <p class="footer-tagline">Benguet-grown coffee &amp; tea, sourced with intention and brewed with precision. Every sip connects you to our highlands.</p>
+        <div class="footer-socials">
+          <a href="https://www.facebook.com/share/1Aw8jjiLkH/?mibextid=wwXIfr" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-facebook"></i></a>
+          <a href="https://www.instagram.com/summitsips_/?utm_source=ig_web_button_share_sheet" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" class="footer-social-btn"><i class="bi bi-tiktok"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Navigate</div>
+        <ul class="footer-links">
+          <li><a href="index.html"><i class="bi bi-house"></i> Home</a></li>
+          <li><a href="about.html"><i class="bi bi-info-circle"></i> About</a></li>
+          <li><a href="menu.html"><i class="bi bi-grid"></i> Menu</a></li>
+          <li><a href="contact.html"><i class="bi bi-envelope"></i> Contact</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-6">
+        <div class="footer-col-title">Find Us</div>
+        <ul class="footer-links">
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Irisan Eco Park</a></li>
+          <li><a href="#"><i class="bi bi-geo-alt"></i> Baguio Night Market</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4">
+        <div class="footer-col-title">Get in Touch</div>
+        <div class="footer-contact-item"><i class="bi bi-geo-alt-fill"></i><span>Irisan Eco Park — Mon–Sun, 10:00 AM – 5:00 PM</span></div>
+        <div class="footer-contact-item"><i class="bi bi-geo-alt-fill"></i><span>Baguio Night Market — Mon–Fri, 9:00 PM – 1:00 AM</span></div>
+        <div class="footer-contact-item"><i class="bi bi-tiktok"></i><span><a href="https://www.tiktok.com/@summit.sips0" target="_blank" rel="noopener" style="color:inherit;">@summit.sips0</a></span></div>
+        <div class="footer-contact-item"><i class="bi bi-instagram"></i><span><a href="https://www.instagram.com/summitsips_/" target="_blank" rel="noopener" style="color:inherit;">@summitsips_</a></span></div>
+      </div>
+    </div>
+    <div class="footer-divider">
+      <span>&copy; 2025 Summit Sips. All rights reserved.</span>
+      <span>Brewed with <i class="bi bi-heart-fill" style="color:var(--accent);font-size:.7rem;"></i> in the Benguets</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════ TOAST ══════════════════════════════ -->
+<div class="toast-notif" id="toastNotif">
+  <i class="bi bi-check-circle-fill"></i>
+  <span id="toastMsg">Added to cart!</span>
+</div>
+
+<!-- ═══════════════════ CHECKOUT MODAL ════════════════════ -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal-box" id="checkoutBox">
+    <button class="modal-close-btn" onclick="closeCheckout()"><i class="bi bi-x-lg"></i></button>
+
+    <div class="checkout-header">
+      <h3>Place <em style="font-style:italic;color:var(--cobalt);">Order</em></h3>
+      <p>Review your order and fill in your details to complete.</p>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <div class="order-summary-title"><i class="bi bi-receipt" style="color:var(--sky);"></i> Order Summary</div>
+      <div id="checkoutSummaryItems"></div>
+      <div class="order-summary-total">
+        <span>Total</span>
+        <span id="checkoutTotal">₱0.00</span>
+      </div>
+    </div>
+
+    <!-- Delivery Type -->
+    <div class="form-group">
+      <label>Order Type <span class="req">*</span></label>
+      <div class="delivery-toggle">
+        <div class="delivery-opt active" id="optDineIn" onclick="setOrderType('dine-in')">
+          <i class="bi bi-shop"></i> Dine In
+        </div>
+        <div class="delivery-opt" id="optTakeout" onclick="setOrderType('takeout')">
+          <i class="bi bi-bag"></i> Take Out
+        </div>
+        <div class="delivery-opt" id="optDelivery" onclick="setOrderType('delivery')">
+          <i class="bi bi-bicycle"></i> Delivery
+        </div>
+      </div>
+    </div>
+
+    <form id="checkoutForm" novalidate>
+      <div class="form-row-grid">
+        <div class="form-group">
+          <label for="co-fname">First Name <span class="req">*</span></label>
+          <input type="text" id="co-fname" class="form-control-custom" placeholder="Maria" autocomplete="given-name">
+        </div>
+        <div class="form-group">
+          <label for="co-lname">Last Name <span class="req">*</span></label>
+          <input type="text" id="co-lname" class="form-control-custom" placeholder="Santos" autocomplete="family-name">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="co-phone">Phone Number <span class="req">*</span></label>
+        <input type="tel" id="co-phone" class="form-control-custom" placeholder="+63 917 000 0000" autocomplete="tel">
+      </div>
+
+      <div class="form-group" id="addressGroup" style="display:none;">
+        <label for="co-address">Delivery Address <span class="req">*</span></label>
+        <input type="text" id="co-address" class="form-control-custom" placeholder="Street, Barangay, City">
+      </div>
+
+      <div class="form-group">
+        <label for="co-notes">Special Requests / Notes</label>
+        <input type="text" id="co-notes" class="form-control-custom" placeholder="e.g. less sugar, extra ice, allergies…">
+      </div>
+
+      <div class="form-group">
+        <label for="co-payment">Payment Method <span class="req">*</span></label>
+        <select id="co-payment" class="form-control-custom">
+          <option value="" disabled selected>Select payment</option>
+          <option value="cash">Cash</option>
+          <option value="gcash">GCash</option>
+          <option value="maya">Maya</option>
+          <option value="card">Credit / Debit Card</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-place-order" id="placeOrderBtn">
+        <span id="placeLabel"><i class="bi bi-check-circle"></i> Confirm Order</span>
+        <div class="spinner" id="placeSpinner"></div>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════ SUCCESS MODAL ═════════════════════ -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box" id="successBox">
+    <div class="success-top">
+      <div class="success-ring"></div>
+      <div class="success-icon-wrap">
+        <i class="bi bi-check-lg"></i>
+      </div>
+      <h2>Order <em>Confirmed!</em></h2>
+      <p>Your highland brews are on their way to being made ☕</p>
+      <div class="success-scallop"></div>
+    </div>
+
+    <div class="success-body">
+
+      <div class="order-ref" id="orderRef">
+        <div class="order-ref-row">
+          <i class="bi bi-hash"></i>
+          <span>Order Ref: <strong id="orderRefNum">—</strong></span>
+        </div>
+        <div class="order-ref-row">
+          <i class="bi bi-person"></i>
+          <span>Name: <strong id="successName">—</strong></span>
+        </div>
+        <div class="order-ref-row">
+          <i class="bi bi-telephone"></i>
+          <span>Contact: <strong id="successPhone">—</strong></span>
+        </div>
+        <div class="order-ref-row">
+          <i class="bi bi-bag"></i>
+          <span>Type: <strong id="successType">—</strong></span>
+        </div>
+        <div class="order-ref-row">
+          <i class="bi bi-credit-card"></i>
+          <span>Payment: <strong id="successPayment">—</strong></span>
+        </div>
+        <div class="order-ref-row">
+          <i class="bi bi-currency-exchange"></i>
+          <span>Total: <strong id="successTotal">—</strong></span>
+        </div>
+      </div>
+
+      <div class="ordered-items-title"><i class="bi bi-list-ul" style="color:var(--sky);"></i> Items Ordered</div>
+      <div id="successItems"></div>
+
+      <div class="success-eta">
+        <div class="success-eta-icon"><i class="bi bi-clock-history"></i></div>
+        <div class="success-eta-text">
+          <strong id="successEta">Ready in 10–15 minutes</strong>
+          <span>We'll prepare your order right away. Thank you!</span>
+        </div>
+      </div>
+
+      <div class="success-btn-row">
+        <button class="btn-success-primary" onclick="closeSuccess()">
+          <i class="bi bi-grid-3x3-gap"></i> Order More
+        </button>
+        <a href="contact.html" class="btn-success-ghost">
+          <i class="bi bi-envelope"></i> Contact Us
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+  /* ══════════════════════════════════════════
+     CART STATE
+  ══════════════════════════════════════════ */
+  let cart = [];
+  let cartOpen = false;
+  let orderType = 'dine-in';
+
+  function toggleCart() {
+    cartOpen = !cartOpen;
+    document.getElementById('cartPanel').classList.toggle('open', cartOpen);
+    document.getElementById('cartOverlay').classList.toggle('open', cartOpen);
+    document.body.style.overflow = cartOpen ? 'hidden' : '';
+  }
+
+  function addToCart(name, price, icon, btn) {
+    const existing = cart.find(i => i.name === name);
+    if (existing) { existing.qty++; }
+    else { cart.push({ name, price, icon, qty: 1 }); }
+    renderCart();
+    showToast(`${name} added!`);
+    // Brief flash on button
+    if (btn) {
+      btn.classList.add('added');
+      btn.innerHTML = '<i class="bi bi-check-lg"></i> Added';
+      setTimeout(() => {
+        btn.classList.remove('added');
+        btn.innerHTML = '<i class="bi bi-plus"></i> Add';
+      }, 1400);
+    }
+  }
+
+  function changeQtyBtn(btn) {
+    changeQty(btn.dataset.name, parseInt(btn.dataset.delta));
+  }
+
+  function changeQty(name, delta) {
+    const item = cart.find(i => i.name === name);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) cart = cart.filter(i => i.name !== name);
+    renderCart();
+  }
+
+  function clearCart() {
+    cart = [];
+    renderCart();
+  }
+
+  function renderCart() {
+    const badge     = document.getElementById('cartBadge');
+    const items     = document.getElementById('cartItems');
+    const empty     = document.getElementById('cartEmpty');
+    const total     = document.getElementById('cartTotal');
+    const countLbl  = document.getElementById('cartCountLabel');
+
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    const sum   = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
+    badge.textContent = count;
+    badge.classList.toggle('visible', count > 0);
+    empty.style.display = cart.length ? 'none' : 'flex';
+    total.textContent = `₱${sum.toFixed(2)}`;
+    countLbl.textContent = count > 0 ? `${count} item${count > 1 ? 's' : ''} in your order` : '';
+
+    items.innerHTML = '';
+    cart.forEach(item => {
+      items.innerHTML += `
+        <div class="cart-item">
+          <div class="cart-item-icon"><i class="bi bi-${item.icon}"></i></div>
+          <div class="cart-item-info">
+            <strong>${item.name}</strong>
+            <span>₱${item.price.toFixed(2)} each</span>
+          </div>
+          <div class="cart-item-right">
+            <div class="cart-item-price">₱${(item.price * item.qty).toFixed(2)}</div>
+            <div class="cart-qty-row">
+              <button class="cart-qty-btn" data-name="${item.name}" data-delta="-1" onclick="changeQtyBtn(this)">−</button>
+              <span class="cart-qty-num">${item.qty}</span>
+              <button class="cart-qty-btn" data-name="${item.name}" data-delta="1" onclick="changeQtyBtn(this)">+</button>
+            </div>
+          </div>
+        </div>`;
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     TOAST
+  ══════════════════════════════════════════ */
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toastNotif');
+    document.getElementById('toastMsg').textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  /* ══════════════════════════════════════════
+     CATEGORY FILTER
+  ══════════════════════════════════════════ */
+  function filterCat(btn, cat) {
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const cats = ['iced','tea','hot','hottea'];
+    cats.forEach(c => {
+      const el = document.getElementById('cat-' + c);
+      if (el) el.style.display = (cat === 'all' || cat === c) ? 'block' : 'none';
+    });
+  }
+
+  /* ══════════════════════════════════════════
+     CHECKOUT MODAL
+  ══════════════════════════════════════════ */
+  function openCheckout() {
+    if (cart.length === 0) { showToast('Add items first!'); return; }
+    // Populate summary
+    const summaryEl = document.getElementById('checkoutSummaryItems');
+    const sum = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    summaryEl.innerHTML = cart.map(item =>
+      `<div class="order-summary-item">
+        <span>${item.name} × ${item.qty}</span>
+        <span>₱${(item.price * item.qty).toFixed(2)}</span>
+      </div>`
+    ).join('');
+    document.getElementById('checkoutTotal').textContent = `₱${sum.toFixed(2)}`;
+
+    document.getElementById('checkoutModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (cartOpen) toggleCart();
+  }
+
+  function closeCheckout() {
+    document.getElementById('checkoutModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('checkoutModal').addEventListener('click', function(e) {
+    if (e.target === this) closeCheckout();
+  });
+
+  /* ── Order Type Toggle ── */
+  function setOrderType(type) {
+    orderType = type;
+    ['dine-in','takeout','delivery'].forEach(t => {
+      const key = t === 'dine-in' ? 'optDineIn' : t === 'takeout' ? 'optTakeout' : 'optDelivery';
+      document.getElementById(key).classList.toggle('active', t === type);
+    });
+    document.getElementById('addressGroup').style.display = type === 'delivery' ? 'block' : 'none';
+  }
+
+  /* ── Checkout Form Submit ── */
+  document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fname   = document.getElementById('co-fname').value.trim();
+    const lname   = document.getElementById('co-lname').value.trim();
+    const phone   = document.getElementById('co-phone').value.trim();
+    const payment = document.getElementById('co-payment').value;
+
+    if (!fname || !lname || !phone || !payment) {
+      showToast('Please fill in all required fields.');
+      return;
+    }
+    if (orderType === 'delivery' && !document.getElementById('co-address').value.trim()) {
+      showToast('Please enter your delivery address.');
+      return;
+    }
+
+    const btn     = document.getElementById('placeOrderBtn');
+    const label   = document.getElementById('placeLabel');
+    const spinner = document.getElementById('placeSpinner');
+    btn.disabled  = true;
+    label.style.display  = 'none';
+    spinner.style.display = 'block';
+
+    setTimeout(() => {
+      btn.disabled = false;
+      label.style.display  = 'flex';
+      spinner.style.display = 'none';
+
+      closeCheckout();
+      populateSuccess(fname, lname, phone, payment);
+      openSuccess();
+    }, 1800);
+  });
+
+  /* ══════════════════════════════════════════
+     SUCCESS MODAL
+  ══════════════════════════════════════════ */
+  const paymentLabels = { cash: 'Cash on Hand', gcash: 'GCash', maya: 'Maya', card: 'Credit / Debit Card' };
+  const typeLabels    = { 'dine-in': 'Dine In', 'takeout': 'Take Out', 'delivery': 'Delivery' };
+
+  function generateRef() {
+    return 'SP-' + Date.now().toString(36).toUpperCase().slice(-6);
+  }
+
+  function populateSuccess(fname, lname, phone, payment) {
+    const sum = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    document.getElementById('orderRefNum').textContent   = generateRef();
+    document.getElementById('successName').textContent   = `${fname} ${lname}`;
+    document.getElementById('successPhone').textContent  = phone;
+    document.getElementById('successType').textContent   = typeLabels[orderType] || orderType;
+    document.getElementById('successPayment').textContent= paymentLabels[payment] || payment;
+    document.getElementById('successTotal').textContent  = `₱${sum.toFixed(2)}`;
+
+    // ETA based on type
+    const etas = { 'dine-in': 'Ready in 10–15 minutes', 'takeout': 'Ready for pickup in 10–15 minutes', 'delivery': 'Delivery in 30–45 minutes' };
+    document.getElementById('successEta').textContent = etas[orderType];
+
+    // Items pills
+    const itemsEl = document.getElementById('successItems');
+    itemsEl.innerHTML = cart.map(item =>
+      `<span class="ordered-item-pill"><i class="bi bi-cup-hot"></i>${item.name} × ${item.qty}</span>`
+    ).join('');
+  }
+
+  function openSuccess() {
+    document.getElementById('successOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(launchConfetti, 300);
+  }
+
+  function closeSuccess() {
+    document.getElementById('successOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+    // Reset
+    cart = [];
+    renderCart();
+    document.getElementById('checkoutForm').reset();
+    setOrderType('dine-in');
+    document.getElementById('addressGroup').style.display = 'none';
+  }
+
+  document.getElementById('successOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeSuccess();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeCheckout(); closeSuccess(); }
+  });
+
+  /* ══════════════════════════════════════════
+     CONFETTI
+  ══════════════════════════════════════════ */
+  function launchConfetti() {
+    const box    = document.getElementById('successBox');
+    const colors = ['#c8a96e','#3a7bd5','#2d9e6b','#ffffff','#1a4a8a','#f0d090'];
+    for (let i = 0; i < 30; i++) {
+      const dot  = document.createElement('div');
+      dot.className = 'confetti-dot';
+      const size = Math.random() * 9 + 5;
+      dot.style.cssText = `
+        width:${size}px; height:${size}px;
+        background:${colors[Math.floor(Math.random() * colors.length)]};
+        top:${Math.random() * 35}%;
+        left:${Math.random() * 100}%;
+        animation-delay:${Math.random() * .5}s;
+        animation-duration:${1 + Math.random() * .8}s;
+        opacity:.9;
+      `;
+      box.appendChild(dot);
+      dot.addEventListener('animationend', () => dot.remove());
+    }
+  }
+
+  /* ══════════════════════════════════════════
+     HAMBURGER
+  ══════════════════════════════════════════ */
+  document.getElementById('navToggle').addEventListener('click', () => {
+    document.getElementById('navLinks').classList.toggle('open');
+  });
+
+  /* ══════════════════════════════════════════
+     SCROLL REVEAL
+  ══════════════════════════════════════════ */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+</script>
+</body>
+</html>
